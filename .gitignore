@@ -1,0 +1,48 @@
+# .env file
+.env
+
+# Log files
+*.log
+log/
+
+# POSTGRESQL Data
+.pgdata/
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+.dockerignore
+
+
+# Python environment files (if the project involves Python)
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# macOS System files
+.DS_Store
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Compiled files
+*.o
+*.so
+*.a
+*.dylib
+
+# Ignore other system or temporary files
+*.swp
+*.tmp
+*~
+
+# Git generated files
+*.orig
