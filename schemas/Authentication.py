@@ -7,7 +7,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    email: Optional[str] = None
+    userID: Optional[str] = None
 
 class UserBase(BaseModel):
     email: str
@@ -20,3 +20,8 @@ class RegisterRequest(BaseModel):
     full_name: str
     email:str
     password: str
+
+class RegisterResponse(BaseModel):
+    user_message: str
+    error_status:int
+    error_message: str    

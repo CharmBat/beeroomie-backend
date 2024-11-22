@@ -2,46 +2,34 @@ from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from utils.Authentication import get_user, verify_password,get_password_hash
+from utils.Authentication import verify_password,get_password_hash
 from schemas.Authentication import TokenData
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-ALGORITHM = os.getenv("ALGORITHM")
-SECRET_KEY = os.getenv("SECRET_KEY")
-
-
+from fastapi.responses import JSONResponse
+from schemas.Authentication import RegisterResponse
+from crud.Authentication import get_user, add_to_db
+from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES
 # Temporary database
-tempDatabase = {
-    "gunyel20@itu.edu.tr": {
-        "userId": "1",
-        "email": "gunyel20@itu.edu.tr",
-        "hashed_password": "$2b$12$b1SNnAwbSrjVzFf7D2d9M.izdyr1EY7tSIoWgSyHiiWJdeZbAptpO"
-    }
-}
-db = tempDatabase
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
 def authenticate_user(email: str, password: str):
-    user = get_user(db, email)
+    user = get_user(email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
         return False
     return user
 
-def register_user_request(email: str, password: str):
-    if get_user(db, email):
+def register_user_service(email: str, password: str):
+    if get_user(email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
     hashed_password = get_password_hash(password)
-    db[email] = {
-        "email": email,
-        "hashed_password": hashed_password,
-    }
+
+    add_to_db(email, hashed_password)
 
 def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
@@ -58,14 +46,32 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        userID: str = payload.get("sub")
+        if userID is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
+        token_data = TokenData(userID=userID)
     except JWTError:
         raise credentials_exception
-    user = get_user(db, token_data.email)
+    user = get_user(token_data.userID)
     if user is None:
         raise credentials_exception
     return user
 
+def login_service(email: str, password: str):
+    
+    user = authenticate_user(email,password)
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=RegisterResponse(
+                user_message="Login failed. Please check your credentials.",
+                error_status=status.HTTP_401_UNAUTHORIZED,
+                error_message="Incorrect email or password"
+            ).model_dump(),
+        )
+    
+    access_token_expires = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return access_token
