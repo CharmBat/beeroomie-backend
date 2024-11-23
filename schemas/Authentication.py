@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
+from fastapi import HTTPException
+
 
     # Pydantic models
 class Token(BaseModel):
@@ -21,7 +23,12 @@ class RegisterRequest(BaseModel):
     email:str
     password: str
 
-class RegisterResponse(BaseModel):
+class LoginRequest(BaseModel):
+    email:str
+    password: str    
+
+class AuthResponse(BaseModel):
+    token: Optional[str] = None
     user_message: str
     error_status:int
     error_message: str    

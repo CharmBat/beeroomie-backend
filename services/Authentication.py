@@ -4,8 +4,7 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash
 from schemas.Authentication import TokenData
-from fastapi.responses import JSONResponse
-from schemas.Authentication import RegisterResponse
+from schemas.Authentication import AuthResponse
 from crud.Authentication import get_user, add_to_db
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES
 # Temporary database
@@ -57,21 +56,27 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return user
 
-def login_service(email: str, password: str):
-    
-    user = authenticate_user(email,password)
+def login_service(email: str, password: str) -> AuthResponse:
+    # Authenticate user
+    user = authenticate_user(email, password)
     if not user:
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content=RegisterResponse(
-                user_message="Login failed. Please check your credentials.",
-                error_status=status.HTTP_401_UNAUTHORIZED,
-                error_message="Incorrect email or password"
-            ).model_dump(),
+        return AuthResponse(
+            token=None,
+            user_message="Login failed. Please check your credentials.",
+            error_status=status.HTTP_401_UNAUTHORIZED,
+            error_message="Incorrect email or password"
         )
     
+    # Create access token with expiration
     access_token_expires = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.userId}, expires_delta=access_token_expires
     )
-    return access_token
+    
+    # Return successful response
+    return AuthResponse(
+        token=access_token,
+        user_message="Login successful",
+        error_status=status.HTTP_200_OK,
+        error_message=""
+    )
