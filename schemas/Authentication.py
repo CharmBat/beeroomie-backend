@@ -9,11 +9,11 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    userID: Optional[str] = None
+    userid: Optional[int] = None
 
 class UserBase(BaseModel):
-    email: str
-    userId: str
+    userid: int
+    e_mail: str
 
 class UserInDB(UserBase):
     hashed_password: str

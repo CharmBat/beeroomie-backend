@@ -48,4 +48,4 @@ build/
 # Git generated files
 *.orig
 
-config.py
+deneme.py

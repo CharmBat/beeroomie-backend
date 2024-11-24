@@ -1,5 +1,4 @@
 from passlib.context import CryptContext
-from schemas.Authentication import UserInDB
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash
 from schemas.Authentication import TokenData
 from schemas.Authentication import AuthResponse
-from crud.Authentication import get_user, add_to_db
+from crud.Authentication import get_user, add_user_to_db
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES
 # Temporary database
 
@@ -28,7 +28,7 @@ def register_user_service(email: str, password: str):
         )
     hashed_password = get_password_hash(password)
 
-    add_to_db(email, hashed_password)
+    add_user_to_db(email, hashed_password)
 
 def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
@@ -45,13 +45,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        userID: str = payload.get("sub")
-        if userID is None:
+        userid: int = payload.get("sub")
+        if userid is None:
             raise credentials_exception
-        token_data = TokenData(userID=userID)
+        token_data = TokenData(userid=userid)
     except JWTError:
         raise credentials_exception
-    user = get_user(token_data.userID)
+    user = get_user(token_data.userid)
     if user is None:
         raise credentials_exception
     return user
@@ -70,7 +70,7 @@ def login_service(email: str, password: str) -> AuthResponse:
     # Create access token with expiration
     access_token_expires = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.userId}, expires_delta=access_token_expires
+        data={"sub": user.userid}, expires_delta=access_token_expires
     )
     
     # Return successful response
