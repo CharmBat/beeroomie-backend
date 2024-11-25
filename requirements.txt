@@ -1,2 +1,7 @@
-fastapi==0.95.1 
-uvicorn==0.22.0 
+fastapi==0.115.5
+passlib==1.7.4
+psycopg2==2.9.10
+pydantic==2.10.1
+python-dotenv==1.0.1
+python_jose==3.3.0
+SQLAlchemy==2.0.36

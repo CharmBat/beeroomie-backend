@@ -16,6 +16,6 @@ async def login(form_data: LoginRequest):
 
 @router.post("/auth/register")
 async def register_user(register_request: RegisterRequest):
-    register_user_service(register_request.email,register_request.password)
-    return {"message": "User registered successfully"}
+    return register_user_service(register_request.email,register_request.password)
+    # return {"message": "User registered successfully"}
 
