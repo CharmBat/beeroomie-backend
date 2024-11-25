@@ -47,8 +47,8 @@ def add_user_to_db(email: str, hashed_password: str):
         
         # Execute the insert query
         query = """
-        INSERT INTO users (e_mail, hashed_password)
-        VALUES (%s, %s)
+        INSERT INTO users (e_mail, hashed_password,is_confirmed)
+        VALUES (%s, %s,FALSE)
         """
         cursor.execute(query, (email, hashed_password))
         

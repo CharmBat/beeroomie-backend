@@ -4,9 +4,8 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash,send_basic_email,create_response
 from schemas.Authentication import TokenData,AuthResponse
-from schemas.Authentication import 
 from crud.Authentication import get_user, add_user_to_db
-from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES
+from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 import asyncio
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
@@ -34,29 +33,30 @@ def register_user_service(email: str, password: str):
             error_message="Already registered email"
         )
 
-    
-    #hashed_password = get_password_hash(password)
-    #add_user_to_db(email, hashed_password)
-    return set_and_send_mail(email)
+    verification_token=create_token(data={"email": email}, expires_delta=timedelta(minutes=30),KEY=VERIFICATION_KEY)
+    verification_url=f"http://localhost:8000/auth/confirm/{verification_token}"
+    hashed_password = get_password_hash(password)
+    add_user_to_db(email, hashed_password)
+    return set_and_send_mail(email,verification_url)
 
 
 
-def set_and_send_mail(email):
+def set_and_send_mail(email,verification_url):
     
     try:
         validated_email = parse_obj_as(EmailStr, email)
     except Exception as e:
-        return {"message": f"Invalid email format: {e}"}
+        return create_response(user_message="Invalid email address.",error_status=status.HTTP_400_BAD_REQUEST,error_message="Invalid email address.")
 
     try:
         email_data = MessageSchema(
     subject="Kayıt İşlemi Başarılı!",
     recipients=[validated_email],  # Note: `recipients` should be a list of email strings
-    body="""
+    body=f"""
     <html>
         <body>
             <h1>Merhaba!</h1>
-            <p>Aramıza hoş geldiniz! Lütfen kayıt işlemini tamamlamak için bu mesajı dikkate alın.</p>
+            <p>Aramıza hoş geldiniz! Lütfen kayıt işlemini tamamlamak için bu mesajı dikkate alın.{verification_url}</p>
         </body>
     </html>
     """,
@@ -73,27 +73,20 @@ def set_and_send_mail(email):
         else:
             asyncio.run(send_basic_email(email_data))
         
-        return {"message": "Registration successful, an email has been sent to your inbox."}
+        return create_response(user_message="An activation mail sent to you email. Please check your email for confirmation.",error_status=status.HTTP_201_CREATED,error_message="Verification mail sent") 
     
     except Exception as e:
         print(f"E-posta gönderim hatası: {e}")
-        return {"message": "Mail sending failed, please try again later."}
+        return create_response(user_message="An error occurred while sending the email.",error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,error_message="An error occurred while sending the email.")
     
 
 
 
-    return create_response(
-        user_message="User registered successfully.",
-        error_status=status.HTTP_201_CREATED,
-        error_message="User registered successfully."
-    )
-
-
-def create_access_token(data: dict, expires_delta: timedelta):
+def create_token(data: dict, expires_delta: timedelta, KEY:str):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
@@ -129,8 +122,8 @@ def login_service(email: str, password: str) -> AuthResponse:
     
     # Create access token with expiration
     access_token_expires = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.userid}, expires_delta=access_token_expires
+    access_token = create_token(
+        data={"userid": user.userid}, expires_delta=access_token_expires,KEY=SECRET_KEY
     )
     
     # Return successful response
