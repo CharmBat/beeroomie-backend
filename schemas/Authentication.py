@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing import Optional
 from fastapi import HTTPException
+from typing import List, Optional
+from fastapi_mail import MessageSchema
 
 
     # Pydantic models
@@ -32,3 +33,10 @@ class AuthResponse(BaseModel):
     user_message: str
     error_status:int
     error_message: str    
+
+
+class EmailSchema(MessageSchema):
+    subject: str
+    recipient: str  # Birden fazla e-posta adresi alabilir
+    body: str  # E-posta içeriği
+    subtype: Optional[str] = "plain"  # Varsayılan olarak düz metin
