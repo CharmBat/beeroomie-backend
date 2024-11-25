@@ -1,7 +1,9 @@
 from passlib.context import CryptContext
+
 from fastapi_mail import MessageSchema
 from config import MAIL_USERNAME, MAIL_FROM, MAIL_PORT, MAIL_PASSWORD, MAIL_SERVER
 from fastapi_mail import ConnectionConfig, FastMail
+from schemas.Authentication import AuthResponse
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -10,9 +12,6 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(plain_password):
     return pwd_context.hash(plain_password)
-
-
-
 
 
 async def send_basic_email(email_data: MessageSchema):
@@ -32,3 +31,12 @@ async def send_basic_email(email_data: MessageSchema):
 )
     fm = FastMail(conf)
     await fm.send_message(email_data) 
+
+def create_response( user_message: str, error_status: int, error_message: str,token: str = None):
+    return AuthResponse(
+        token=token,
+        user_message=user_message,
+        error_status=error_status,
+        error_message=error_message
+    )
+
