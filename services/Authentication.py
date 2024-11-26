@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash,send_basic_email,create_response
 from schemas.Authentication import TokenData,AuthResponse
-from crud.Authentication import get_user, add_user_to_db, confirm_user
+from crud.Authentication import get_user, add_user_to_db, confirm_user, delete_user
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 import asyncio
 from fastapi_mail import MessageSchema
@@ -85,10 +85,10 @@ def confirm_user_service(token):
     userid = payload.get("userid")
         
     if userid is None:
-            raise ValueError("Email not found in token")
+            raise ValueError("UserID not found in token")
     try:
         confirm_user(userid)
-        return create_response(user_message="Email confirmed successfully.",error_status=status.HTTP_201_CREATED,error_message="Email confirmed successfully.") 
+        return create_response(user_message="User confirmed successfully.",error_status=status.HTTP_201_CREATED,error_message="User confirmed successfully.") 
    
     except Exception as e:
         print(f"Invalid token or confirmation failed: {e}")
@@ -146,4 +146,22 @@ def login_service(email: str, password: str) -> AuthResponse:
         error_status=status.HTTP_200_OK,
         error_message=""
     )
+
+def delete_user_service(token):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    userid = payload.get("userid")
+        
+    if userid is None:
+            raise ValueError("UserId not found in token")
+    try:
+        delete_user(userid)
+        return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,error_message="User deleted successfully.") 
+   
+    except Exception as e:
+        print(f"Invalid token or confirmation failed: {e}")
+        return create_response(user_message="Invalid token or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,error_message="Invalid token or deletion failed.") 
+   
+
+
+
 

@@ -1,6 +1,6 @@
 from fastapi import Depends,APIRouter
 from schemas.Authentication import AuthResponse, UserInDB,RegisterRequest,LoginRequest
-from services.Authentication import login_service, get_current_user,register_user_service, confirm_user_service
+from services.Authentication import login_service, get_current_user,register_user_service, confirm_user_service, delete_user_service
 
 router = APIRouter()
 
@@ -20,3 +20,7 @@ async def register_user(register_request: RegisterRequest):
 @router.get("/auth/confirm/{token}", response_model=AuthResponse)
 async def confirm_user(token: str):
     return confirm_user_service(token)
+
+@router.delete("/auth/delete/{token}")
+async def delete_user(token: str):
+    return delete_user_service(token)
