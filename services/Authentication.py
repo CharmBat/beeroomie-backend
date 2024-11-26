@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash,send_basic_email,create_response
 from schemas.Authentication import TokenData,AuthResponse
-from crud.Authentication import get_user, add_user_to_db
+from crud.Authentication import get_user, add_user_to_db, confirm_user
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 import asyncio
 from fastapi_mail import MessageSchema
@@ -80,9 +80,23 @@ def set_and_send_mail(email,verification_url):
         return create_response(user_message="An error occurred while sending the email.",error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,error_message="An error occurred while sending the email.")
     
 
+def confirm_user_service(token):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    userid = payload.get("userid")
+        
+    if userid is None:
+            raise ValueError("Email not found in token")
+    try:
+        confirm_user(userid)
+        return create_response(user_message="Email confirmed successfully.",error_status=status.HTTP_201_CREATED,error_message="Email confirmed successfully.") 
+   
+    except Exception as e:
+        print(f"Invalid token or confirmation failed: {e}")
+        return create_response(user_message="Invalid token or confirmation failed.",error_status=status.HTTP_400_BAD_REQUEST,error_message="Invalid token or confirmation failed.") 
+   
 
 
-def create_token(data: dict, expires_delta: timedelta, KEY:str):
+def create_token(data: dict, expires_delta: timedelta, KEY:str = SECRET_KEY):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
@@ -132,3 +146,4 @@ def login_service(email: str, password: str) -> AuthResponse:
         error_status=status.HTTP_200_OK,
         error_message=""
     )
+

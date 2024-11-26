@@ -1,7 +1,6 @@
 from fastapi import Depends,APIRouter
 from schemas.Authentication import AuthResponse, UserInDB,RegisterRequest,LoginRequest
-from services.Authentication import login_service, get_current_user,register_user_service
-
+from services.Authentication import login_service, get_current_user,register_user_service, confirm_user_service
 
 router = APIRouter()
 
@@ -18,3 +17,6 @@ async def login(form_data: LoginRequest):
 async def register_user(register_request: RegisterRequest):
     return register_user_service(register_request.email,register_request.password)
 
+@router.get("/auth/confirm/{token}", response_model=AuthResponse)
+async def confirm_user(token: str):
+    return confirm_user_service(token)

@@ -64,3 +64,27 @@ def add_user_to_db(email: str, hashed_password: str):
         if connection:
             cursor.close()
             connection.close()
+
+
+def confirm_user(userid:str):
+    connection=None
+    try:
+    
+        connection = psycopg2.connect(**db_config)
+        cursor = connection.cursor(cursor_factory=DictCursor)
+        query = "UPDATE users SET is_confirmed = true WHERE userid = %s"
+        cursor.execute(query, (userid,))
+        connection.commit()
+        
+        if cursor.rowcount > 0:
+            print(f"User with userid {userid} confirmed successfully.")
+        else:
+            print(f"No user found with userid {userid} or the user is already confirmed.")
+        
+    except Exception as e:
+        print(f"Database error in confirm_user: {e}")
+        return None
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
