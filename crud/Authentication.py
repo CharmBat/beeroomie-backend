@@ -111,3 +111,24 @@ def delete_user(userid:str):
         if connection:
             cursor.close()
             connection.close()
+
+def update_user_password(userid: str, hashed_password: str):
+    connection = None
+    try:
+        connection = psycopg2.connect(**db_config)
+        cursor = connection.cursor(cursor_factory=DictCursor)
+        query = "UPDATE users SET password = %s WHERE userid = %s"
+        cursor.execute(query, (hashed_password, userid))
+        connection.commit()
+        
+        if cursor.rowcount > 0:
+            print(f"Password for user with userid {userid} updated successfully.")
+        else:
+            print(f"No user found with userid {userid} or the user is already deleted.")
+    except Exception as e:
+        print(f"Database error in update_user_password: {e}")
+        return None
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()

@@ -1,10 +1,10 @@
-from fastapi import Depends, status
+from fastapi import Depends, status, HTTPException
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash,send_basic_email,create_response
 from schemas.Authentication import TokenData,AuthResponse
-from crud.Authentication import get_user, add_user_to_db, confirm_user, delete_user
+from crud.Authentication import get_user, add_user_to_db, confirm_user, delete_user, update_user_password
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 import asyncio
 from fastapi_mail import MessageSchema
@@ -15,6 +15,8 @@ from pydantic import EmailStr, parse_obj_as
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+token_blacklist = set()
 
 def authenticate_user(email: str, password: str):
     user = get_user(email)
@@ -161,6 +163,50 @@ def delete_user_service(token):
         print(f"Invalid token or confirmation failed: {e}")
         return create_response(user_message="Invalid token or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,error_message="Invalid token or deletion failed.") 
    
+
+def change_password_service(token: str, new_password: str):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    userid = payload.get("userid")
+
+    if userid is None:
+        raise ValueError("UserId not found in token")
+
+    try:
+        hashed_password = get_password_hash(new_password)
+        update_user_password(userid, hashed_password)
+        
+        return create_response(
+            user_message="Password changed successfully.",
+            error_status=status.HTTP_200_OK,
+            error_message=""
+        )
+    except Exception as e:
+        print(f"Password change failed: {e}")
+        return create_response(
+            user_message="Failed to change password.",
+            error_status=status.HTTP_400_BAD_REQUEST,
+            error_message="Password change failed."
+        )
+
+
+def logout_service(token: str) -> dict:
+    print(f"Token received: {token}")  
+
+    if not token:  
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is missing. Please provide a valid token.",
+        )
+    
+    if token not in token_blacklist:
+        token_blacklist.add(token)
+
+    return AuthResponse(
+        token=None,
+        user_message="Logout successful",
+        error_status=status.HTTP_200_OK,
+        error_message=""
+    )
 
 
 
