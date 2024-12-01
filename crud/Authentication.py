@@ -117,7 +117,7 @@ def update_user_password(userid: str, hashed_password: str):
     try:
         connection = psycopg2.connect(**db_config)
         cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "UPDATE users SET password = %s WHERE userid = %s"
+        query = "UPDATE users SET hashed_password = %s WHERE userid = %s"
         cursor.execute(query, (hashed_password, userid))
         connection.commit()
         
