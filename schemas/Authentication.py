@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from fastapi import HTTPException
-from typing import List, Optional
+from typing import Optional
 from fastapi_mail import MessageSchema
 
 
@@ -20,7 +19,6 @@ class UserInDB(UserBase):
     hashed_password: str
 
 class RegisterRequest(BaseModel):
-    full_name: str
     email:str
     password: str
 
@@ -32,7 +30,7 @@ class AuthResponse(BaseModel):
     token: Optional[str] = None
     user_message: str
     error_status:int
-    error_message: str    
+    system_message: str    
 
 
 class EmailSchema(MessageSchema):

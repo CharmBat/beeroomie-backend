@@ -32,11 +32,11 @@ async def send_basic_email(email_data: MessageSchema):
     fm = FastMail(conf)
     await fm.send_message(email_data) 
 
-def create_response( user_message: str, error_status: int, error_message: str,token: str = None):
+def create_response( user_message: str, error_status: int, system_message: str,token: str = None):
     return AuthResponse(
         token=token,
         user_message=user_message,
         error_status=error_status,
-        error_message=error_message
+        system_message=system_message
     )
 

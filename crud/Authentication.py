@@ -114,6 +114,7 @@ def delete_user(userid:str):
 
 def update_user_password(userid: str, hashed_password: str):
     connection = None
+    
     try:
         connection = psycopg2.connect(**db_config)
         cursor = connection.cursor(cursor_factory=DictCursor)
@@ -127,6 +128,47 @@ def update_user_password(userid: str, hashed_password: str):
             print(f"No user found with userid {userid} or the user is already deleted.")
     except Exception as e:
         print(f"Database error in update_user_password: {e}")
+        return None
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+def get_userid_from_email(email: str):
+    connection = None
+    try:
+        connection = psycopg2.connect(**db_config)
+        cursor = connection.cursor(cursor_factory=DictCursor)
+        query = "SELECT userid FROM users WHERE e_mail = %s"
+        cursor.execute(query, (email,))
+        userid = cursor.fetchone()
+        if userid:
+            return userid["userid"]
+        return None
+    except Exception as e:
+        print(f"Database error in get_userid_from_email: {e}")
+        return None
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()            
+
+def confirm_user(email: str):
+    connection = None
+    try:
+        connection = psycopg2.connect(**db_config)
+        cursor = connection.cursor(cursor_factory=DictCursor)
+        query = "UPDATE users SET is_confirmed = TRUE WHERE e_mail = %s"
+        cursor.execute(query, (email,))
+        connection.commit()
+        
+        if cursor.rowcount > 0:
+            print(f"User with email {email} confirmed successfully.")
+        else:
+            print(f"No user found with email {email} or the user is already confirmed.")
+        
+    except Exception as e:
+        print(f"Database error in confirm_user: {e}")
         return None
     finally:
         if connection:
