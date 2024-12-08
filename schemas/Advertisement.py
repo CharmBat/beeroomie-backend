@@ -4,7 +4,7 @@ from typing import Optional,List
 
 
 class AdPageSchema(BaseModel):
-    adpageID: int
+    adpageid: Optional[int]  # İsteğe bağlı hale getirildi
     userid_fk: int
     neighborhoodid_fk: int
     n_roomid_fk: int
@@ -19,14 +19,14 @@ class AdPageSchema(BaseModel):
     furnished: bool
     description: str
     address: str
-    gender_choice: int
+    gender_choices: int
     ad_date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class AdPageResponseSchema(BaseModel):
-    adpageID: int
+    adpageid: int
     userid_fk: int
     neighborhoodid_fk: int
     n_roomid_fk: int
@@ -41,11 +41,11 @@ class AdPageResponseSchema(BaseModel):
     furnished: bool
     description: str
     address: str
-    gender_choice: int
+    gender_choices: int
     ad_date: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 '''

@@ -4,9 +4,9 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 class AdPage(Base):
-    __tablename__ = "Ad_page"
+    __tablename__ = "ad_page"
 
-    adpageID = Column(Integer, primary_key=True)
+    adpageid = Column(Integer, primary_key=True, autoincrement=True)
     userid_fk = Column(Integer)
     neighborhoodid_fk = Column(Integer)
     n_roomid_fk = Column(Integer)
@@ -21,5 +21,5 @@ class AdPage(Base):
     furnished = Column(Boolean)
     description = Column(String(300))
     address = Column(String(300))
-    gender_choice = Column(Integer)
+    gender_choices = Column(Integer)
     ad_date = Column(Date)
