@@ -48,9 +48,16 @@ class AdPageResponseSchema(BaseModel):
         from_attributes = True
 
 
+class AdPageResponse(BaseModel):
+    advertisement_list: Optional[List[AdPageResponseSchema]] = None
+    user_message: str
+    error_status:int
+    system_message: str    
+
+
 '''
 Top declaration works with Sqlalchemy orm
-TODO: Need to use one schema.
+TODO: Need to use one schema. Discuss later
 '''
 
 class AdvertisementBase(BaseModel):
@@ -78,8 +85,6 @@ class AdvertisementFrontEnd(AdvertisementBase):
     district: str #fetched from districtID lookup
     n_room: int #fetched from n_roomID lookup
     photos: list[dict]#dict -> {photo1: "url", photo2: "url", photo3: "url"}
-
-
 
 
 class AdvertisementResponse(BaseModel):
