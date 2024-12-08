@@ -39,7 +39,7 @@ class AdPageCRUD:
     def delete(db: Session, adpage_id: int):
         db_adpage = db.query(AdPage).filter(AdPage.adpageid == adpage_id).first()
         if not db_adpage:
-            raise HTTPException(status_code=404, detail="AdPage not found")
+            return db_adpage
         db.delete(db_adpage)
         db.commit()
-        return {"message": "AdPage deleted successfully"}
+        return {"message": "Advertisement deleted successfully"}
