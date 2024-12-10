@@ -1,7 +1,64 @@
 from pydantic import BaseModel
+from datetime import date
 from typing import Optional,List
 
 
+class AdPageSchema(BaseModel):
+    adpageid: Optional[int]  # İsteğe bağlı hale getirildi
+    userid_fk: int
+    neighborhoodid_fk: int
+    n_roomid_fk: int
+    title: str
+    price: int
+    adtype: bool
+    m2: int
+    n_floor: int
+    floornumber: int
+    pet: bool
+    smoking: bool
+    furnished: bool
+    description: str
+    address: str
+    gender_choices: int
+    ad_date: date
+
+    class Config:
+        from_attributes = True
+
+class AdPageResponseSchema(BaseModel):
+    adpageid: int
+    userid_fk: int
+    neighborhoodid_fk: int
+    n_roomid_fk: int
+    title: str
+    price: int
+    adtype: bool
+    m2: int
+    n_floor: int
+    floornumber: int
+    pet: bool
+    smoking: bool
+    furnished: bool
+    description: str
+    address: str
+    gender_choices: int
+    ad_date: date
+
+    class Config:
+        from_attributes = True
+
+
+class AdPageResponse(BaseModel):
+    advertisement_list: Optional[List[AdPageResponseSchema]] = None
+    user_message: str
+    error_status:int
+    system_message: str    
+
+
+'''
+Top declaration works with Sqlalchemy orm
+TODO: Need to use one schema. Discuss later
+'''
 
 class AdvertisementBase(BaseModel):
     title: str
@@ -28,8 +85,6 @@ class AdvertisementFrontEnd(AdvertisementBase):
     district: str #fetched from districtID lookup
     n_room: int #fetched from n_roomID lookup
     photos: list[dict]#dict -> {photo1: "url", photo2: "url", photo3: "url"}
-
-
 
 
 class AdvertisementResponse(BaseModel):
