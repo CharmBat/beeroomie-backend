@@ -49,3 +49,4 @@ build/
 *.orig
 
 deneme.py
+testdb.py

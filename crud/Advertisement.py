@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
 from models.Advertisement import AdPage
-from schemas.Advertisement import AdPageSchema
-
+from schemas.Advertisement import AdPageSchema,AdPageResponseSchema
+from sqlalchemy.orm import Session
+from models.User import User
 class AdPageCRUD:
-    @staticmethod
-    def get_all(db: Session):
-        return db.query(AdPage).all()
+
 
     @staticmethod
     def get_by_id(db: Session, adpage_id: int):
