@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schemas.Advertisement import AdvertisementResponse
-from schemas.Advertisement import AdPageSchema, AdPageResponse
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageResponseSchema
 # from services.Advertisement import get_all_advertisements_service
 from crud.Advertisement import AdPageCRUD
 from typing import List
@@ -57,6 +57,65 @@ def update_adpage(adpage_id: int, adpage: AdPageSchema, db: Session = Depends(ge
         return AdPageResponse(
             advertisement_list=None,
             user_message="Failed to update Advertisement",
+            error_status=500,
+            system_message=str(e)
+        )
+    
+@router.delete("/{adpage_id}")
+def delete_adpage(adpage_id: int, db: Session = Depends(get_db)):
+    try:
+   
+        result = AdPageCRUD.delete(db, adpage_id)
+        
+        if not result:  
+            return AdPageResponse(
+                advertisement_list=None,
+                user_message="Advertisement not found",
+                error_status=404,
+                system_message="No record found with the given ID"
+            )
+        
+        return AdPageResponse(
+            advertisement_list=None,
+            user_message="Advertisement deleted successfully",
+            error_status=0,
+            system_message="OK"
+        )
+    except Exception as e:
+        return AdPageResponse(
+            advertisement_list=None,
+            user_message="Failed to delete Advertisement",
+            error_status=500,
+            system_message=str(e)
+        )
+
+
+@router.get("/{adpage_id}", response_model=AdPageResponse)
+def read_adpage(adpage_id: int, db: Session = Depends(get_db)):
+    try:
+        # İlanı getir
+        db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
+
+        if not db_adpage:  
+            return AdPageResponse(
+                advertisement_list=None,
+                user_message="Advertisement not found",
+                error_status=404,
+                system_message="No record found with the given ID"
+            )
+
+        response_data = AdPageResponseSchema.from_orm(db_adpage)
+
+        return AdPageResponse(
+            advertisement_list=[response_data],
+            user_message="Advertisement fetched successfully",
+            error_status=0,
+            system_message="OK"
+        )
+    except Exception as e:
+        return AdPageResponse(
+            advertisement_list=None,
+            user_message="Failed to fetch Advertisement",
             error_status=500,
             system_message=str(e)
         )
