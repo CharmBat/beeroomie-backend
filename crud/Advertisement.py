@@ -43,3 +43,28 @@ class AdPageCRUD:
         db.delete(db_adpage)
         db.commit()
         return {"message": "Advertisement deleted successfully"}
+    
+    
+
+
+
+
+    @staticmethod
+    def get_filtered(db: Session, filters: dict):
+        filters = {key: value for key, value in filters.items() if value is not None}
+        query = db.query(AdPage)
+
+        for key, value in filters.items():
+            if key in ["max_price", "min_price"]:  
+                continue
+            if hasattr(AdPage, key):  
+                column = getattr(AdPage, key)
+                query = query.filter(column == value)
+                
+        if "max_price" in filters:
+            query = query.filter(AdPage.price <= filters["max_price"])
+        if "min_price" in filters:
+            query = query.filter(AdPage.price >= filters["min_price"])
+
+        return query
+

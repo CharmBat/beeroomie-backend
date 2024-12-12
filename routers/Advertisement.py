@@ -1,11 +1,14 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schemas.Advertisement import AdvertisementResponse
-from schemas.Advertisement import AdPageSchema, AdPageResponse
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilter
 # from services.Advertisement import get_all_advertisements_service
 from crud.Advertisement import AdPageCRUD
 from typing import List
 from db.database import get_db
+from models.Advertisement import AdPage
+
 
 router = APIRouter(
     prefix="/advertisement",
@@ -60,3 +63,36 @@ def update_adpage(adpage_id: int, adpage: AdPageSchema, db: Session = Depends(ge
             error_status=500,
             system_message=str(e)
         )
+
+
+    
+@router.get("/", response_model=AdPageResponse)
+def get_filtered_pages(filters: AdPageFilter = Depends(), db: Session = Depends(get_db)):
+    try:
+        filters_dict = filters.dict(exclude_unset=True)
+        print(filters_dict)
+
+        advertisements_query = AdPageCRUD.get_filtered(db, filters_dict)
+        
+        total_count = advertisements_query.count()
+        advertisements = advertisements_query.offset(filters.offset).limit(filters.limit).all()
+
+        return AdPageResponse(
+            advertisement_list=advertisements,
+            user_message="Advertisements fetched successfully",
+            error_status=0,
+            system_message=f"Showing {len(advertisements)} of {total_count} advertisements",
+            total_count=total_count,
+            page_size=filters.limit
+        )
+    except Exception as e:
+        logging.error(f"Error in get_filtered_pages: {str(e)}")
+        return AdPageResponse(
+            advertisement_list=None,
+            user_message="Failed to fetch advertisements",
+            error_status=500,
+            system_message=str(e)
+        )
+
+
+

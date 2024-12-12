@@ -3,6 +3,9 @@ from datetime import date
 from typing import Optional,List
 
 
+
+
+
 class AdPageSchema(BaseModel):
     adpageid: Optional[int]  # İsteğe bağlı hale getirildi
     userid_fk: int
@@ -24,6 +27,17 @@ class AdPageSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AdPageFilter(BaseModel):      #Page filtering için, district gibi değişkenler eklenecek
+    furnished: Optional[bool] = None
+    max_price: Optional[int] = None
+    min_price: Optional[int] = None
+    pet: Optional[bool] = None
+    smoking: Optional[bool] = None
+    gender_choices: Optional[int] = None
+    limit: Optional[int] = 10
+    offset: Optional[int] = 0
 
 class AdPageResponseSchema(BaseModel):
     adpageid: int
