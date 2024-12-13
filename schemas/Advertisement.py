@@ -17,12 +17,8 @@ class AdPageBase(BaseModel):
     furnished: bool
     description: str
     address: str
-
     ad_date: date
 
-class AdPageRequest(AdPageBase):
-    photos: list[dict]
-    
 class AdPageSchema(AdPageBase):
     userid_fk: int
     neighborhoodid_fk: int
@@ -31,6 +27,10 @@ class AdPageSchema(AdPageBase):
     class Config:
         from_attributes = True
 
+class AdPageRequest(AdPageSchema):
+    photos: list[dict]
+    utilites:List[int]
+    
 
 
 class AdPageResponseSchema(AdPageBase):
@@ -40,6 +40,7 @@ class AdPageResponseSchema(AdPageBase):
     n_room: str
     gender_choices: str
     photos: list[dict]
+    utilities:List[str]
 
     class Config:
         from_attributes = True
@@ -50,6 +51,7 @@ class AdPageResponse(BaseModel):
     user_message: str
     error_status:int
     system_message: str    
+
 
 
 '''
