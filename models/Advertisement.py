@@ -1,15 +1,16 @@
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
+from .base import Base
 
-Base = declarative_base()
+Base = Base
 
 class AdPage(Base):
     __tablename__ = "ad_page"
 
     adpageid = Column(Integer, primary_key=True, autoincrement=True)
-    userid_fk = Column(Integer)
-    neighborhoodid_fk = Column(Integer)
-    n_roomid_fk = Column(Integer)
+    userid_fk = Column(Integer, ForeignKey('Users.userid'))
+    neighborhoodid_fk = Column(Integer, ForeignKey('neighborhood.neighborhoodid'))
+    n_roomid_fk = Column(Integer, ForeignKey('numberofroom.n_roomid'))
     title = Column(String(100))
     price = Column(Integer)
     adtype = Column(Boolean)
@@ -21,16 +22,24 @@ class AdPage(Base):
     furnished = Column(Boolean)
     description = Column(String(300))
     address = Column(String(300))
-    gender_choices = Column(Integer)
+    gender_choice = Column(Integer)
     ad_date = Column(Date)
 
-#Look up tables for advertisement
+    # Relationships
+    users = relationship('Users', back_populates='ads')
+    neighborhood = relationship('Neighborhood', back_populates='ads')
+    room_type = relationship('NumberOfRoom', back_populates='ads')
+    photos = relationship('Photos', back_populates='ad_page')
+    ad_utilities = relationship('AdUtilities', back_populates='ad_page')
 
 class NumberOfRoom(Base):
     __tablename__ = "numberofroom"
 
     n_roomid = Column(Integer, primary_key=True, autoincrement=True)
     n_room = Column(String(3))
+
+    # Relationship with AdPage
+    ads = relationship('AdPage', back_populates='room_type')
 
 class Neighborhood(Base):
     __tablename__ = "neighborhood"
@@ -41,6 +50,7 @@ class Neighborhood(Base):
 
     # Relationships
     district = relationship("District", back_populates="neighborhoods")
+    ads = relationship('AdPage', back_populates='neighborhood')
 
 class District(Base):
     __tablename__ = "district"
@@ -50,16 +60,16 @@ class District(Base):
 
     # Relationship with Neighborhood
     neighborhoods = relationship("Neighborhood", back_populates="district")
+
 class AdUtilities(Base):
     __tablename__ = 'ad_utilities'
 
-    adpageid = Column(Integer, ForeignKey('ad_page.adpageID'), primary_key=True)
+    adpageid = Column(Integer, ForeignKey('ad_page.adpageid'), primary_key=True)
     utilityid = Column(Integer, ForeignKey('utilities.utilityid'), primary_key=True)
 
     # Relationships
     utility = relationship('Utilities', back_populates='ad_utilities')
     ad_page = relationship('AdPage', back_populates='ad_utilities')
-
 
 class Utilities(Base):
     __tablename__ = 'utilities'
@@ -69,3 +79,15 @@ class Utilities(Base):
 
     # Relationship to Ad_utilities
     ad_utilities = relationship('AdUtilities', back_populates='utility')
+
+class Photos(Base):
+    __tablename__ = 'photos'
+
+    photoid = Column(Integer, primary_key=True, autoincrement=True)
+    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid'))
+    photourl = Column(String(200), nullable=False)
+
+    # Relationships
+    ad_page = relationship('AdPage', back_populates='photos')
+
+

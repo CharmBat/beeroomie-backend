@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import Optional,List
+from typing import Optional,List,Union
 
     
 
@@ -28,7 +28,7 @@ class AdPageSchema(AdPageBase):
         from_attributes = True
 
 class AdPageRequest(AdPageSchema):
-    photos: list[dict]
+    photos: list[str]
     utilites:List[int]
     
 
@@ -39,15 +39,27 @@ class AdPageResponseSchema(AdPageBase):
     district: str
     n_room: str
     gender_choices: str
-    photos: list[dict]
+    photos: list[str]
     utilities:List[str]
 
     class Config:
         from_attributes = True
 
+class AdListingResponseSchema(BaseModel):
+    adpageid: int
+    title: str
+    address: str
+    pet: bool
+    smoking: bool
+    price: int
+    adtype: bool
+    full_name: str
+    photos: list[str]
+
+
 
 class AdPageResponse(BaseModel):
-    advertisement_list: Optional[List[AdPageResponseSchema]] = None
+    advertisement_list: Optional[List[Union[AdPageResponseSchema, AdListingResponseSchema]]] = None
     user_message: str
     error_status:int
     system_message: str    
