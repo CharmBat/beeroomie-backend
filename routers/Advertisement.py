@@ -8,9 +8,9 @@ router = APIRouter(
     tags=["Advertisement"]
 )
 
-# @router.get("/", response_model=AdPageResponse)
-# async def get_all_advertisements(pagination: int = 0, db: Session =Depends(get_db)):  # pagination is the page number (all pages have 10 advertisements)
-#     return AdvertisementService.get_all_advertisements_service(pagination,db)
+@router.get("/", response_model=AdPageResponse)
+async def get_all_advertisements(pagination: int = 0, db: Session =Depends(get_db)):  # pagination is the page number (all pages have 10 advertisements)
+    return AdvertisementService.get_all_advertisements_service(pagination,db)
 
 @router.post("/", response_model=AdPageResponse)
 async def create_adpage(adpage: AdPageSchema, db: Session =Depends(get_db)):
