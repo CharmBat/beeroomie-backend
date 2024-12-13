@@ -1,9 +1,81 @@
 from sqlalchemy.orm import Session
-from models.Advertisement import AdPage
-from schemas.Advertisement import AdPageSchema,AdPageResponseSchema
+from models.Advertisement import AdPage,Photos
+from models.User import UserPageInfo
+from schemas.Advertisement import AdPageSchema,AdListingResponseSchema
 from sqlalchemy.orm import Session
-from models.User import User
+
+
 class AdPageCRUD:
+    @staticmethod
+    def get_all(db: Session, pagination: int = 0):
+        if not isinstance(db, Session):
+            raise TypeError("db must be an instance of Session")
+
+       
+        query = (
+            db.query(
+                AdPage.adpageid,
+                AdPage.title,
+                AdPage.price,
+                AdPage.adtype,
+                AdPage.address,
+                AdPage.pet,
+                AdPage.smoking,
+                UserPageInfo.full_name,
+                Photos.photourl,
+            )
+            .join(UserPageInfo, AdPage.userid_fk == UserPageInfo.userid_fk)
+            .join(Photos, AdPage.adpageid == Photos.adpageid_fk)
+            .offset(pagination)
+            .limit(10)
+        )
+        # print(query.statement.compile(compile_kwargs={"literal_binds": True}))
+        
+        # Fetch all results
+        results = query.all()
+
+            
+        # Process results into a dictionary structure to group photos 
+        adpage_dict = {}
+        for result in results:
+
+            
+            adpage_id = result.adpageid
+
+            if adpage_id not in adpage_dict:
+                adpage_dict[adpage_id] = {
+                    "adpageid": result.adpageid,
+                    "adtype": result.adtype,
+                    "pet": result.pet,
+                    "smoking": result.smoking,
+                    "address": result.address,
+                    "full_name": result.full_name,
+                    "price": result.price,
+                    "title": result.title,
+                    "photos": [],
+                }
+
+            # Add photo URLs
+            if result.photourl:
+                adpage_dict[adpage_id]["photos"].append(result.photourl)
+                
+        # Convert to response schema
+        adpage_response_schemas = [
+            AdListingResponseSchema(
+                adpageid=data["adpageid"],
+                title=data["title"],
+                price=data["price"],
+                adtype=data["adtype"],
+                pet=data["pet"],
+                smoking=data["smoking"],
+                address=data["address"],
+                full_name=data["full_name"],
+                photos=data["photos"],
+            )
+            for data in adpage_dict.values()
+        ]
+
+        return adpage_response_schemas
 
 
     @staticmethod

@@ -1,7 +1,7 @@
 from schemas.Advertisement import AdPageSchema, AdPageResponse
 from crud.Advertisement import AdPageCRUD
 from fastapi import status
-from utils.Advertisement import create_response_ads
+from utils.Advertisement import create_response_ads, create_response_ads_listing
 
 class AdvertisementService:
 
@@ -50,3 +50,21 @@ class AdvertisementService:
                 advertisement_list=None
             )
 
+    @staticmethod
+    def get_all_advertisements_service(pagination,db) -> AdPageResponse:
+        try:
+
+            advertisement_list = AdPageCRUD.get_all(pagination=pagination,db=db)
+            return create_response_ads_listing(
+                user_message=f"Advertisements fetched successfully. Page: {pagination}",
+                error_status=status.HTTP_200_OK, 
+                system_message="OK",
+                advertisement_list=advertisement_list
+            )
+        except Exception as e:
+            return create_response_ads_listing(
+                user_message="Failed to retrieve advertisements",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                system_message=str(e),
+                advertisement_list=None
+            )
