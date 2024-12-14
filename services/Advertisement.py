@@ -1,4 +1,4 @@
-from schemas.Advertisement import AdPageSchema, AdPageResponse
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema
 from crud.Advertisement import AdPageCRUD
 from fastapi import status
 from utils.Advertisement import create_response_ads, create_response_ads_listing
@@ -68,3 +68,30 @@ class AdvertisementService:
                 system_message=str(e),
                 advertisement_list=None
             )
+        
+    @staticmethod
+    def get_filtered_advertisements_service(filters: AdPageFilterSchema, db):
+        try:
+            filters_dict = filters.dict(exclude_unset=True)  # Filtreleri dönüştür
+            advertisements = AdPageCRUD.get_filtered_ads(db, filters_dict)
+
+            total_count = len(advertisements)
+            return create_response_ads_listing(
+                user_message="Advertisements fetched successfully.",
+                error_status=200,
+                system_message=f"Total {total_count} advertisements found.",
+                advertisement_list=advertisements
+            )
+        except Exception as e:
+            return create_response_ads_listing(
+                user_message="Failed to retrieve advertisements.",
+                error_status=500,
+                system_message=str(e),
+                advertisement_list=None
+            )
+
+
+
+
+
+
