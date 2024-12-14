@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import verify_password,get_password_hash,send_basic_email,create_response
 from schemas.Authentication import TokenData,AuthResponse
-from crud.Authentication import get_user, add_user_to_db, confirm_user, delete_user, update_user_password,get_userid_from_email
+from crud.Authentication import get_user, add_user_to_db, confirm_user, delete_user, update_user_password,get_userid_from_email, get_user_from_userid
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 import asyncio
 from fastapi_mail import MessageSchema
@@ -101,7 +101,7 @@ def create_token(data: dict, expires_delta: timedelta, KEY:str = SECRET_KEY):
 
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = create_response(user_message="Couldn't validate your credentials.",
             error_status=status.HTTP_401_UNAUTHORIZED,
             system_message="Credentials validation failed.")
@@ -114,7 +114,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(userid=userid)
     except JWTError:
         return credentials_exception
-    user = get_user(token_data.userid)
+    user = get_user_from_userid(token_data.userid)
     if user is None:
         return credentials_exception
     return user

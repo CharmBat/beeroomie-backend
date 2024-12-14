@@ -38,6 +38,33 @@ def get_user(email: str):
             cursor.close()
             connection.close()
 
+
+def get_user_from_userid(userid: int):
+    connection = None
+    try:
+        # Connect to the database
+        connection = psycopg2.connect(**db_config)
+        cursor = connection.cursor(cursor_factory=DictCursor)
+        
+        # Execute the query with parameters
+        query = "SELECT * FROM users WHERE userid = %s"
+        cursor.execute(query, (userid,))
+        
+        # Fetch the user
+        user = cursor.fetchall()
+        if user:
+            return UserInDB(**user[0])
+        return None
+            
+    except Exception as e:
+        print(f"Database error in get_user: {e}")
+        return None
+    finally:
+        # Clean up resources
+        if connection:
+            cursor.close()
+            connection.close()
+
 def add_user_to_db(email: str, hashed_password: str):
     connection = None
     try:
