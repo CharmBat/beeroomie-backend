@@ -31,14 +31,11 @@ class AdPageRequest(AdPageSchema):
     photos: list[str]
     utilites:List[int]
     
-
-
 class AdPageResponseSchema(AdPageBase):
     user_full_name: str
     neighborhood: str
     district: str
     n_room: str
-    gender_choices: str
     photos: list[str]
     utilities:List[str]
 

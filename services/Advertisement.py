@@ -1,7 +1,7 @@
-from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, AdPageResponseSchema
 from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
 from fastapi import status
-from utils.Advertisement import create_response_ads_listing,create_response_only_message  
+from utils.Advertisement import create_response_ads_listing,create_response_only_message
 
 class AdvertisementService:
 
@@ -99,4 +99,53 @@ class AdvertisementService:
                 error_status=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                 system_message=str(e),
                 advertisement_list=None
+            )
+
+    @staticmethod
+    def delete_adpage_service(adpage_id: int, db) -> AdPageResponse:
+        try:
+            db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
+            if not db_adpage:
+                return create_response_only_message(
+                    user_message="Advertisement not found",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="No record found with the given ID",
+                )
+
+            AdPageCRUD.delete(db, adpage_id)
+            return create_response_only_message(
+                user_message=f"Advertisement {adpage_id} deleted successfully",
+                error_status=status.HTTP_200_OK,
+                system_message="OK",
+            )
+        except Exception as e:
+            return create_response_only_message(
+                user_message="Failed to delete Advertisement",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e),
+            )
+
+    @staticmethod
+    def get_ad_details_service(adpage_id: int, db) -> AdPageResponseSchema:
+        try:
+            ad = AdPageCRUD.get_ad_by_id(db, adpage_id)
+    
+            if not ad:
+                return create_response_only_message(
+                    user_message="Advertisement not found",
+                    error_status=404,
+                    system_message="No advertisement found with the given ID",
+                )
+    
+            return create_response_only_message(
+                user_message="Advertisement fetched successfully",
+                error_status=200,
+                system_message="OK",
+                advertisement_list=[ad],  
+            )
+        except Exception as e:
+            return create_response_only_message(
+                user_message="Failed to fetch advertisement",
+                error_status=500,
+                system_message=str(e),
             )

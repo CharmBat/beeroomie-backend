@@ -29,8 +29,8 @@ class AdPage(Base):
     users = relationship('Users', back_populates='ads')
     neighborhood = relationship('Neighborhood', back_populates='ads')
     room_type = relationship('NumberOfRoom', back_populates='ads')
-    photos = relationship('Photos', back_populates='ad_page')
-    ad_utilities = relationship('AdUtilities', back_populates='ad_page')
+    photos = relationship('Photos', back_populates='ad_page', cascade="all, delete")
+    ad_utilities = relationship('AdUtilities', back_populates='ad_page', cascade="all, delete")
 
 class NumberOfRoom(Base):
     __tablename__ = "numberofroom"
@@ -45,7 +45,7 @@ class Neighborhood(Base):
     __tablename__ = "neighborhood"
 
     neighborhoodid = Column(Integer, primary_key=True, autoincrement=True)
-    districtid_fk = Column(Integer, ForeignKey("district.districtid"), nullable=False)
+    districtid_fk = Column(Integer, ForeignKey("district.districtid", ondelete='CASCADE'), nullable=False)
     neighborhood_name = Column(String(40), nullable=False)
 
     # Relationships
@@ -59,13 +59,13 @@ class District(Base):
     district_name = Column(String(30), nullable=False)
 
     # Relationship with Neighborhood
-    neighborhoods = relationship("Neighborhood", back_populates="district")
+    neighborhoods = relationship("Neighborhood", back_populates="district", cascade="all, delete")
 
 class AdUtilities(Base):
     __tablename__ = 'ad_utilities'
 
-    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid'), primary_key=True)
-    utilityid_fk = Column(Integer, ForeignKey('utilities.utilityid'), primary_key=True)
+    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid', ondelete='CASCADE'), primary_key=True)
+    utilityid_fk = Column(Integer, ForeignKey('utilities.utilityid', ondelete='CASCADE'), primary_key=True)
 
     # Relationships
     utility = relationship('Utilities', back_populates='ad_utilities')
@@ -84,7 +84,7 @@ class Photos(Base):
     __tablename__ = 'photos'
 
     photoid = Column(Integer, primary_key=True, autoincrement=True)
-    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid'))
+    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid', ondelete='CASCADE'))
     photourl = Column(String(200), nullable=False)
 
     # Relationships
