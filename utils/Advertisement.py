@@ -1,5 +1,7 @@
+from sqlalchemy.orm import Session
 from typing import List
 from schemas.Advertisement import AdPageResponseSchema, AdPageResponse, AdListingResponseSchema
+from models.Advertisement import AdPage
 
 # def create_response_ads(user_message: str, error_status: int, system_message: str, advertisement_list: List[AdPageResponseSchema] = None):
 #     return AdPageResponse(
@@ -23,3 +25,7 @@ def create_response_ads_listing(user_message: str, error_status: int, system_mes
         error_status=error_status,
         system_message=system_message
    )
+
+def get_user_by_ad(db: Session, adpage_id: int):
+    adpage = db.query(AdPage).filter(AdPage.adpageid == adpage_id).first()
+    return adpage.userid_fk 
