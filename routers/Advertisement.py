@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from schemas.Advertisement import AdPageRequest, AdPageResponse
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema
 from services.Advertisement import AdvertisementService
 from db.database import get_db
 from sqlalchemy.orm import Session
@@ -20,4 +20,12 @@ async def create_adpage(adpage: AdPageRequest, db: Session =Depends(get_db)):
 @router.put("/{adpage_id}", response_model=AdPageResponse)
 async def update_adpage(adpage_id: int, adpage: AdPageRequest, db: Session =Depends(get_db)):
     return AdvertisementService.update_adpage_service(adpage_id, adpage,db)
+
+
+
+
+@router.get("/filtered", response_model=AdPageResponse)
+async def get_filtered_advertisements(filters: AdPageFilterSchema = Depends(), db: Session = Depends(get_db)):
+    return AdvertisementService.get_filtered_advertisements_service(filters, db)
+
 
