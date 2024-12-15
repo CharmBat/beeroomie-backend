@@ -30,6 +30,17 @@ class AdPageSchema(AdPageBase):
 class AdPageRequest(AdPageSchema):
     photos: list[str]
     utilites:List[int]
+
+
+class AdPageFilterSchema(BaseModel):
+    furnished: Optional[bool] = None
+    pet: Optional[bool] = None
+    smoking: Optional[bool] = None
+    min_price: Optional[int] = None
+    max_price: Optional[int] = None
+    neighborhood: Optional[str] = None
+    district: Optional[str] = None
+    gender_choices: Optional[int] = None
     
 class AdPageResponseSchema(AdPageBase):
     user_full_name: str
