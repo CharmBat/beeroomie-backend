@@ -1,55 +1,87 @@
-from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema
-from crud.Advertisement import AdPageCRUD
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema, AdPageRequest
+from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
 from fastapi import status
-from utils.Advertisement import create_response_ads, create_response_ads_listing
+from utils.Advertisement import create_response_ads_listing,create_response_only_message  
 
 class AdvertisementService:
 
+ from crud.Advertisement import PhotosCRUD, AdUtilitiesCRUD
+
+class AdvertisementService:
     @staticmethod
-    def create_adpage_service(adpage: AdPageSchema, db):
+    def create_adpage_service(adpage: AdPageRequest, db):
         try:
-            advertisement = AdPageCRUD.create(db, adpage)
-            return create_response_ads(
+            # Sadece AdPageSchema ile ilgili alanları filtrele
+            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
+
+            # AdPageSchema nesnesine dönüştür
+            adpage_schema = AdPageSchema(**adpage_schema_data)
+
+            # Advertisement oluştur
+            advertisement = AdPageCRUD.create(db, adpage_schema)
+            # Photos ekle
+            if adpage.photos:
+                PhotosCRUD.create_photos(db, advertisement.adpageid, adpage.photos)
+            # Ad Utilities ekle
+            if adpage.utilites:
+                AdUtilitiesCRUD.create_ad_utilities(db, advertisement.adpageid, adpage.utilites)
+
+            return create_response_only_message(
                 user_message=f"Advertisement {advertisement.adpageid} created successfully",
-                error_status=status.HTTP_201_CREATED, 
+                error_status=status.HTTP_201_CREATED,
                 system_message="OK",
-                advertisement_list=[advertisement]
             )
         except Exception as e:
-            return create_response_ads(
+            return create_response_only_message(
                 user_message="Failed to create Advertisement",
-                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,  
-                system_message=str(e),
-                advertisement_list=None
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e)
             )
 
+
     @staticmethod
-    def update_adpage_service(adpage_id: int, adpage: AdPageSchema, db):
+    def update_adpage_service(adpage_id: int, adpage: AdPageRequest, db):
         try:
+            # Advertisement'ı ID ile kontrol et
             db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
             if not db_adpage:
-                return create_response_ads(
+                return create_response_only_message(
                     user_message="Advertisement not found",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID",
-                    advertisement_list=None
                 )
 
-            updated_adpage = AdPageCRUD.update(db, adpage_id, adpage)
-            return create_response_ads(
-                user_message="Advertisement updated successfully",
+            # Sadece AdPageSchema ile ilgili alanları filtrele
+            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
+
+            # AdPageSchema nesnesine dönüştür
+            adpage_schema = AdPageSchema(**adpage_schema_data)
+
+            # Advertisement'ı güncelle
+            updated_adpage = AdPageCRUD.update(db, adpage_id, adpage_schema)
+
+            # Photos güncelle
+            PhotosCRUD.delete_photos(db, adpage_id)  # Eski fotoğrafları sil
+            if adpage.photos:
+                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
+
+            # Ad Utilities güncelle
+            AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)  # Eski utilities'i sil
+            if adpage.utilites:
+                AdUtilitiesCRUD.create_ad_utilities(db, adpage_id, adpage.utilites)
+
+            return create_response_only_message(
+                user_message=f"Advertisement {adpage_id} updated successfully",
                 error_status=status.HTTP_200_OK,
                 system_message="OK",
-                advertisement_list=[updated_adpage]
             )
         except Exception as e:
-            return create_response_ads(
+            return create_response_only_message(
                 user_message="Failed to update Advertisement",
-                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 system_message=str(e),
-                advertisement_list=None
             )
-
+    
     @staticmethod
     def get_all_advertisements_service(pagination,db) -> AdPageResponse:
         try:

@@ -22,7 +22,7 @@ class AdPage(Base):
     furnished = Column(Boolean)
     description = Column(String(300))
     address = Column(String(300))
-    gender_choice = Column(Integer)
+    gender_choices = Column(Integer)
     ad_date = Column(Date)
 
     # Relationships
@@ -64,8 +64,8 @@ class District(Base):
 class AdUtilities(Base):
     __tablename__ = 'ad_utilities'
 
-    adpageid = Column(Integer, ForeignKey('ad_page.adpageid'), primary_key=True)
-    utilityid = Column(Integer, ForeignKey('utilities.utilityid'), primary_key=True)
+    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid'), primary_key=True)
+    utilityid_fk = Column(Integer, ForeignKey('utilities.utilityid'), primary_key=True)
 
     # Relationships
     utility = relationship('Utilities', back_populates='ad_utilities')

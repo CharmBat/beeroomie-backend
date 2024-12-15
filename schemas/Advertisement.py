@@ -17,13 +17,13 @@ class AdPageBase(BaseModel):
     furnished: bool
     description: str
     address: str
+    gender_choices: int
     ad_date: date
 
 class AdPageSchema(AdPageBase):
     userid_fk: int
     neighborhoodid_fk: int
     n_roomid_fk: int
-    gender_choices: int
     class Config:
         from_attributes = True
 
@@ -68,16 +68,9 @@ class AdListingResponseSchema(BaseModel):
     photos: list[str]
 
 
-
 class AdPageResponse(BaseModel):
     advertisement_list: Optional[List[Union[AdPageResponseSchema, AdListingResponseSchema]]] = None
     user_message: str
     error_status:int
     system_message: str    
 
-
-
-'''
-Top declaration works with Sqlalchemy orm
-TODO: Need to use one schema. Discuss later
-'''

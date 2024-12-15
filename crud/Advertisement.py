@@ -39,7 +39,7 @@ class AdPageCRUD:
         adpage_dict = {}
         for result in results:
 
-            
+
             adpage_id = result.adpageid
 
             if adpage_id not in adpage_dict:
@@ -172,11 +172,12 @@ class AdPageCRUD:
 
     @staticmethod
     def create(db: Session, adpage: AdPageSchema) -> AdPage:
-        adpage_data = adpage.dict()
+        adpage_data = adpage.model_dump()
 
         adpage_data.pop("adpageid", None)
 
         db_adpage = AdPage(**adpage_data)
+
         db.add(db_adpage)
         db.commit()
         db.refresh(db_adpage)
@@ -202,3 +203,33 @@ class AdPageCRUD:
         db.delete(db_adpage)
         db.commit()
         return {"message": "Advertisement deleted successfully"}
+
+class PhotosCRUD:
+    @staticmethod
+    def create_photos(db: Session, adpage_id: int, photo_urls: list[str]):
+        photos = [Photos(adpageid_fk=adpage_id, photourl=url) for url in photo_urls]
+        db.bulk_save_objects(photos)  # SQLAlchemy'nin nesne kaydetmesini sağlar
+        db.commit()
+        return photos
+
+    @staticmethod
+    def delete_photos(db: Session, adpage_id: int):
+        db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
+        db.commit()
+
+class AdUtilitiesCRUD:
+    @staticmethod
+    def create_ad_utilities(db: Session, adpage_id: int, utility_ids: list[int]):
+        # Modeldeki sütun adlarına dikkat edin
+        utilities = [
+            AdUtilities(adpageid_fk=adpage_id, utilityid_fk=utility_id)
+            for utility_id in utility_ids
+        ]
+        db.bulk_save_objects(utilities)  # SQLAlchemy'nin nesne kaydetmesini sağlar
+        db.commit()
+        return utilities
+   
+    @staticmethod
+    def delete_ad_utilities(db: Session, adpage_id: int):
+        db.query(AdUtilities).filter(AdUtilities.adpageid_fk == adpage_id).delete()
+        db.commit()
