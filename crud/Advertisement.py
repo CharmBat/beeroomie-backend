@@ -1,11 +1,90 @@
 from sqlalchemy.orm import Session
-from models.Advertisement import AdPage,Photos,Neighborhood,District
+from models.Advertisement import AdPage,Photos,AdUtilities, Neighborhood, NumberOfRoom, District, Utilities
 from models.User import UserPageInfo
-from schemas.Advertisement import AdPageSchema,AdListingResponseSchema
+from schemas.Advertisement import AdPageSchema,AdListingResponseSchema, AdPageResponseSchema
 from sqlalchemy.orm import Session
 
 
 class AdPageCRUD:
+    @staticmethod
+    def get_ad_by_id(db: Session, adpage_id: int):
+        if not isinstance(db, Session):
+            raise TypeError("db must be an instance of Session")
+
+        query = (
+            db.query(
+                AdPage.adpageid,
+                AdPage.title,
+                AdPage.price,
+                AdPage.adtype,
+                AdPage.m2,
+                AdPage.n_floor,
+                AdPage.floornumber,
+                AdPage.pet,
+                AdPage.smoking,
+                AdPage.furnished,
+                AdPage.description,
+                AdPage.address,
+                AdPage.gender_choices,
+                AdPage.ad_date,
+                Neighborhood.neighborhood_name.label("neighborhood"),
+                District.district_name.label("district"),
+                NumberOfRoom.n_room.label("n_room"),
+                UserPageInfo.full_name.label("user_full_name"),
+            )
+            .join(UserPageInfo, AdPage.userid_fk == UserPageInfo.userid_fk)
+            .join(Neighborhood, AdPage.neighborhoodid_fk == Neighborhood.neighborhoodid)
+            .join(District, Neighborhood.districtid_fk == District.districtid)
+            .join(NumberOfRoom, AdPage.n_roomid_fk == NumberOfRoom.n_roomid)
+            .filter(AdPage.adpageid == adpage_id)
+        ).first() 
+
+        if not query:
+            return None 
+
+        
+        photos = (
+            db.query(Photos.photourl)
+            .filter(Photos.adpageid_fk == adpage_id)
+            .all()
+        )
+        utilities = (
+            db.query(Utilities.utility_name)
+            .join(AdUtilities, Utilities.utilityid == AdUtilities.utilityid_fk)
+            .filter(AdUtilities.adpageid_fk == adpage_id)
+            .all()
+        )
+
+       
+        photo_list = [photo.photourl for photo in photos]
+        utility_list = [utility.utility_name for utility in utilities]
+
+        
+        ad_data = {
+            "adpageid": query.adpageid,
+            "title": query.title,
+            "price": query.price,
+            "adtype": query.adtype,
+            "m2": query.m2,
+            "n_floor": query.n_floor,
+            "floornumber": query.floornumber,
+            "pet": query.pet,
+            "smoking": query.smoking,
+            "furnished": query.furnished,
+            "description": query.description,
+            "address": query.address,
+            "gender_choices": query.gender_choices,
+            "ad_date": query.ad_date,
+            "neighborhood": query.neighborhood,
+            "district": query.district,
+            "n_room": query.n_room,
+            "user_full_name": query.user_full_name,
+            "photos": photo_list,
+            "utilities": utility_list,
+        }
+
+        return AdPageResponseSchema(**ad_data)
+
     @staticmethod
     def get_all(db: Session, pagination: int = 0):
         if not isinstance(db, Session):
