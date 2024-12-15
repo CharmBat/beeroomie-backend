@@ -80,11 +80,6 @@ class AdPageCRUD:
 
 
 
-
-
-
-    
-
     @staticmethod
     def get_filtered_ads(db: Session, filters: dict, limit: int = 10, offset: int = 0):
         # Temel sorgu
@@ -102,11 +97,10 @@ class AdPageCRUD:
             )
             .join(UserPageInfo, AdPage.userid_fk == UserPageInfo.userid_fk)
             .join(Photos, AdPage.adpageid == Photos.adpageid_fk)
-            .join(Neighborhood, AdPage.neighborhoodid_fk == Neighborhood.neighborhoodid)  # Eklenen Join
-            .join(District, Neighborhood.districtid_fk == District.districtid)  # Eklenen Join
+            .join(Neighborhood, AdPage.neighborhoodid_fk == Neighborhood.neighborhoodid)  # Neighborhood Join
+            .join(District, Neighborhood.districtid_fk == District.districtid)  # District Join
         )
 
-        # Dinamik filtreleme
         for key, value in filters.items():
             if value is not None:
                 if key == "min_price":
@@ -114,14 +108,17 @@ class AdPageCRUD:
                 elif key == "max_price":
                     query = query.filter(AdPage.price <= value)
                 elif key == "neighborhood":
-                    query = query.filter(Neighborhood.neighborhood_name.ilike(f"%{value}%"))
+                    query = query.filter(AdPage.neighborhoodid_fk == value)  
                 elif key == "district":
-                    query = query.filter(District.district_name.ilike(f"%{value}%"))
+                    query = query.filter(Neighborhood.districtid_fk == value)  
+                elif key == "number_of_rooms":
+                    query = query.filter(AdPage.n_roomid_fk == value)  
                 elif hasattr(AdPage, key):
                     column = getattr(AdPage, key)
                     query = query.filter(column == value)
 
         query = query.offset(offset).limit(limit)
+
         results = query.all()
 
         adpage_dict = {}
@@ -142,7 +139,7 @@ class AdPageCRUD:
             if result.photourl:
                 adpage_dict[adpage_id]["photos"].append(result.photourl)
 
-        return [
+        adpage_response_schemas = [
             AdListingResponseSchema(
                 adpageid=data["adpageid"],
                 title=data["title"],
@@ -156,12 +153,8 @@ class AdPageCRUD:
             )
             for data in adpage_dict.values()
         ]
-
-
-
-
-
-
+        
+        return adpage_response_schemas, len(adpage_dict)
 
 
 

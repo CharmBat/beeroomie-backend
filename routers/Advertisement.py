@@ -8,9 +8,19 @@ router = APIRouter(
     tags=["Advertisement"]
 )
 
+# @router.get("/", response_model=AdPageResponse)
+# async def get_all_advertisements(pagination: int = 0, db: Session =Depends(get_db)):  # pagination is the page number (all pages have 10 advertisements)
+#     return AdvertisementService.get_all_advertisements_service(pagination,db)
+
 @router.get("/", response_model=AdPageResponse)
-async def get_all_advertisements(pagination: int = 0, db: Session =Depends(get_db)):  # pagination is the page number (all pages have 10 advertisements)
-    return AdvertisementService.get_all_advertisements_service(pagination,db)
+async def get_advertisements(filters: AdPageFilterSchema = Depends(), pagination: int = 0, db: Session = Depends(get_db)
+):
+    if filters.dict(exclude_unset=True):  #If there is a filter
+        return AdvertisementService.get_filtered_advertisements_service(filters, db, pagination)
+    
+    else:  #If there is no filter
+        return AdvertisementService.get_all_advertisements_service(pagination, db)
+
 
 @router.post("/", response_model=AdPageResponse)
 async def create_adpage(adpage: AdPageRequest, db: Session =Depends(get_db)):
@@ -22,10 +32,5 @@ async def update_adpage(adpage_id: int, adpage: AdPageRequest, db: Session =Depe
     return AdvertisementService.update_adpage_service(adpage_id, adpage,db)
 
 
-
-
-@router.get("/filtered", response_model=AdPageResponse)
-async def get_filtered_advertisements(filters: AdPageFilterSchema = Depends(), db: Session = Depends(get_db)):
-    return AdvertisementService.get_filtered_advertisements_service(filters, db)
 
 

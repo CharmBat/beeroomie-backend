@@ -38,8 +38,9 @@ class AdPageFilterSchema(BaseModel):
     smoking: Optional[bool] = None
     min_price: Optional[int] = None
     max_price: Optional[int] = None
-    neighborhood: Optional[str] = None
-    district: Optional[str] = None
+    neighborhood: Optional[int] = None
+    district: Optional[int] = None
+    number_of_rooms: Optional[int] = None
     gender_choices: Optional[int] = None
     
 

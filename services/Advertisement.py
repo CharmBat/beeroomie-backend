@@ -102,16 +102,20 @@ class AdvertisementService:
             )
         
     @staticmethod
-    def get_filtered_advertisements_service(filters: AdPageFilterSchema, db):
+    def get_filtered_advertisements_service(filters: AdPageFilterSchema, db, pagination: int):
         try:
-            filters_dict = filters.dict(exclude_unset=True)  # Filtreleri dönüştür
-            advertisements = AdPageCRUD.get_filtered_ads(db, filters_dict)
+            filters_dict = filters.dict(exclude_unset=True)
 
-            total_count = len(advertisements)
+            limit = 10  
+            offset = pagination * limit
+
+            advertisements, total_count = AdPageCRUD.get_filtered_ads(db, filters_dict, limit=limit, offset=offset)
+
+        
             return create_response_ads_listing(
                 user_message="Advertisements fetched successfully.",
                 error_status=200,
-                system_message=f"Total {total_count} advertisements found.",
+                system_message=f"Page {pagination + 1}, showing {len(advertisements)} of {total_count} advertisements.",
                 advertisement_list=advertisements
             )
         except Exception as e:
@@ -121,6 +125,7 @@ class AdvertisementService:
                 system_message=str(e),
                 advertisement_list=None
             )
+
 
 
 
