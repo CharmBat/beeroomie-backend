@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from models.OfferManagement import OfferModel
+from models.User import UserPageInfo
 
 class OfferCRUD:
     @staticmethod
@@ -22,6 +23,31 @@ class OfferCRUD:
         db.delete(offer)
         db.commit()
         return {"message": "Offer deleted successfully"}
+    
+    @staticmethod
+    def get_all(db: Session, offereeid_fk: int):
+        query = (
+            db.query(
+                OfferModel.offerid.label("offer_id"),
+                OfferModel.send_message,
+                UserPageInfo.full_name.label("offerer_name"),
+                UserPageInfo.contact
+            )
+            .join(UserPageInfo, UserPageInfo.userid_fk == OfferModel.offererid_fk)   
+        )
+        
+        results = query.all()
+        return [
+            {
+                "offer_id": result.offer_id,
+                "send_message": result.send_message,
+                "offerer_name": result.offerer_name,
+                "contact_info": result.contact,
+            }
+            for result in results
+        ]
+            
+
 
 
 
