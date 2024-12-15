@@ -22,7 +22,6 @@ class OfferService:
             )
 
             return OfferResponse(
-                offer_list=[new_offer],
                 user_message=f"Offer {new_offer.offerid} created successfully",
                 error_status=0,
                 system_message="OK"
@@ -31,7 +30,6 @@ class OfferService:
             raise e
         except Exception as e:
             return OfferResponse(
-                offer_list=None,
                 user_message="Failed to create Offer",
                 error_status=500,
                 system_message=str(e)
@@ -54,7 +52,6 @@ class OfferService:
             raise e
         except Exception as e:
             return OfferResponse(
-                offer_list=None,
                 user_message="Failed to delete Offer",
                 error_status=500,
                 system_message=str(e)
