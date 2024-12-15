@@ -12,3 +12,6 @@ router = APIRouter(prefix="/offers",
 async def create_offer(adpageid: int, description:str, token: str, db: Session =Depends(get_db)):
     return OfferService.create_offer_service(adpageid, description, db, token)
 
+@router.delete("/{offerid}", response_model=OfferResponse)
+async def delete_offer(offerid: int, db: Session =Depends(get_db)):
+    return OfferService.delete_offer_service(offerid, db)
