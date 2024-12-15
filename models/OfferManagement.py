@@ -9,5 +9,7 @@ class OfferModel(Base):
     
     offerid = Column(Integer, primary_key=True, index=True)
     offererid_fk = Column(Integer)
-    offereeid_fk = Column(Integer, ForeignKey('ad_page.userid_fk'))
+    offereeid_fk = Column(Integer, ForeignKey('Users.userid'))
     send_message = Column(String)
+
+    users = relationship('Users', back_populates='offers')
