@@ -15,3 +15,7 @@ async def create_offer(adpageid: int, description:str, token: str, db: Session =
 @router.delete("/{offerid}", response_model=OfferResponse)
 async def delete_offer(offerid: int, db: Session =Depends(get_db)):
     return OfferService.delete_offer_service(offerid, db)
+
+@router.get("/", response_model=OfferResponse)
+async def get_offers(token: str, db: Session =Depends(get_db)):
+    return OfferService.get_offers_service(token, db)

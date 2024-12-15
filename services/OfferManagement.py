@@ -1,4 +1,4 @@
-from schemas.OfferManagement import OfferResponse
+from schemas.OfferManagement import OfferResponse, OfferResponseListing
 from crud.OfferManagement import OfferCRUD
 from fastapi import APIRouter, Depends, HTTPException
 from utils.Advertisement import get_user_by_ad
@@ -56,6 +56,24 @@ class OfferService:
             return OfferResponse(
                 offer_list=None,
                 user_message="Failed to delete Offer",
+                error_status=500,
+                system_message=str(e)
+            )
+        
+    @staticmethod
+    def get_offers_service(token: str, db):
+        try:
+            offereeid = get_current_user(token).userid
+            offers = OfferCRUD.get_all(db, offereeid)
+            return OfferResponseListing(
+                user_message="Successfully fetched Offers",
+                error_status=0,
+                system_message="OK",
+                offers = offers
+            )
+        except Exception as e:
+            return OfferResponse(
+                user_message="Failed to fetch Offers",
                 error_status=500,
                 system_message=str(e)
             )
