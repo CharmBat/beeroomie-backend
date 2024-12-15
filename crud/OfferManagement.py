@@ -13,6 +13,15 @@ class OfferCRUD:
         db.commit()
         db.refresh(new_offer)
         return new_offer
+    
+    @staticmethod
+    def delete(db: Session, offerid: int):
+        offer = db.query(OfferModel).filter(OfferModel.offerid == offerid).first()
+        if not offer:
+            return offer
+        db.delete(offer)
+        db.commit()
+        return {"message": "Offer deleted successfully"}
 
 
 

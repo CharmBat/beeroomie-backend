@@ -37,3 +37,26 @@ class OfferService:
                 system_message=str(e)
             )
         
+    @staticmethod
+    def delete_offer_service(offerid: int, db):
+
+        try:
+            if not offerid:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            OfferCRUD.delete(db, offerid)
+            
+            return OfferResponse(
+                user_message=f"Offer {offerid} deleted successfully",
+                error_status=0,
+                system_message="OK"
+            )
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            return OfferResponse(
+                offer_list=None,
+                user_message="Failed to delete Offer",
+                error_status=500,
+                system_message=str(e)
+            )
+        
