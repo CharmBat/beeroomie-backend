@@ -81,25 +81,26 @@ class AdvertisementService:
                 error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 system_message=str(e),
             )
-    
-    @staticmethod
-    def get_all_advertisements_service(pagination,db) -> AdPageResponse:
-        try:
 
-            advertisement_list = AdPageCRUD.get_all(pagination=pagination,db=db)
-            return create_response_ads_listing(
-                user_message=f"Advertisements fetched successfully. Page: {pagination}",
-                error_status=status.HTTP_200_OK, 
-                system_message="OK",
-                advertisement_list=advertisement_list
-            )
-        except Exception as e:
-            return create_response_ads_listing(
-                user_message="Failed to retrieve advertisements",
-                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-                system_message=str(e),
-                advertisement_list=None
-            )
+    # @staticmethod
+    # def get_all_advertisements_service(pagination,db) -> AdPageResponse:
+    #     try:
+
+    #         advertisement_list = AdPageCRUD.get_all(pagination=pagination,db=db)
+    #         return create_response_ads_listing(
+    #             user_message=f"Advertisements fetched successfully. Page: {pagination}",
+    #             error_status=status.HTTP_200_OK, 
+    #             system_message="OK",
+    #             advertisement_list=advertisement_list
+    #         )
+    #     except Exception as e:
+    #         return create_response_ads_listing(
+    #             user_message="Failed to retrieve advertisements",
+    #             error_status=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+    #             system_message=str(e),
+    #             advertisement_list=None
+    #         )
+     
 
     @staticmethod
     def delete_adpage_service(adpage_id: int, db) -> AdPageResponse:
@@ -150,17 +151,22 @@ class AdvertisementService:
                 system_message=str(e),
             )
 
-    @staticmethod
-    def get_filtered_advertisements_service(filters: AdPageFilterSchema, db):
-        try:
-            filters_dict = filters.dict(exclude_unset=True)  # Filtreleri dönüştür
-            advertisements = AdPageCRUD.get_filtered_ads(db, filters_dict)
 
-            total_count = len(advertisements)
+    @staticmethod
+    def get_filtered_advertisements_service(filters: AdPageFilterSchema, db, pagination: int):
+        try:
+            filters_dict = filters.dict(exclude_unset=True)
+
+            limit = 10  
+            offset = pagination * limit
+
+            advertisements, total_count = AdPageCRUD.get_filtered_ads(db, filters_dict, limit=limit, offset=offset)
+
+        
             return create_response_ads_listing(
                 user_message="Advertisements fetched successfully.",
                 error_status=200,
-                system_message=f"Total {total_count} advertisements found.",
+                system_message=f"Page {pagination + 1}, showing {len(advertisements)} of {total_count} advertisements.",
                 advertisement_list=advertisements
             )
         except Exception as e:
