@@ -4,7 +4,7 @@ from PIL import Image
 import uuid
 from fastapi import UploadFile, File, status
 from config import CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,CLOUDINARY_NAME
-from utils.PhotoUpload import create_response
+from utils.PhotoHandle import create_response
 
 
 class PhotoUploadService:

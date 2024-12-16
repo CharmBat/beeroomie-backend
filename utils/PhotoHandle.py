@@ -1,4 +1,4 @@
-from schemas.PhotoUpload import PhotoUploadResponse
+from schemas.PhotoHandle import PhotoUploadResponse
 
 def create_response( user_message: str, error_status: int, system_message: str,photoUrl: str = None):
     return PhotoUploadResponse(
