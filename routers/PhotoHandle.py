@@ -1,5 +1,5 @@
 from fastapi import APIRouter, File, UploadFile
-from services.PhotoUpload import PhotoUploadService
+from services.PhotoHandle import PhotoUploadService
 
 
 router = APIRouter(tags=["PhotoUpload"])

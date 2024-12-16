@@ -1,5 +1,6 @@
 # .env file
 .env
+venv/
 
 # Log files
 *.log
@@ -47,4 +48,5 @@ build/
 # Git generated files
 *.orig
 
-config.py
+deneme.py
+testdb.py
