@@ -37,6 +37,8 @@ class Users(Base):
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")
 
+    offers = relationship('OfferModel', back_populates='users', uselist=False, cascade="all, delete")
+
 class Department(Base):
     __tablename__ = "department"
 
