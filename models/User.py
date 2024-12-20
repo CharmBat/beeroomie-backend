@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, Date,ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -10,7 +10,7 @@ class UserPageInfo(Base):
     userid_fk = Column(Integer, ForeignKey('Users.userid'), primary_key=True, index=True)
     departmentid_fk = Column(Integer, ForeignKey("department.departmentid"))
     full_name = Column(String(50))
-    date_of_birth = Column(String)
+    date_of_birth = Column(Date)
     gender = Column(Boolean)
     smoking = Column(Boolean)
     pet = Column(Boolean)
