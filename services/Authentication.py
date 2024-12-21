@@ -105,7 +105,7 @@ class AuthenticationService:
         # Create access token with expiration
         access_token_expires = timedelta(minutes=TOKEN_EXPIRE_MINUTES)
         access_token = create_token(
-            data={"userid": user.userid}, expires_delta=access_token_expires,KEY=SECRET_KEY
+            data={"userid": user.userid, "role": user.role}, expires_delta=access_token_expires, KEY=SECRET_KEY
         )
         
         # Return successful response
