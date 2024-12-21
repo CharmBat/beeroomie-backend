@@ -119,9 +119,9 @@ def verify_token_userid(token: str,SECRET_KEY:str=SECRET_KEY):
         )
 
 
-def create_response( user_message: str, error_status: int, system_message: str,token: str = None):
+def create_response( user_message: str, error_status: int, system_message: str,access_token: str = None):
     return AuthResponse(
-        token=token,
+        access_token=access_token,
         user_message=user_message,
         error_status=error_status,
         system_message=system_message
