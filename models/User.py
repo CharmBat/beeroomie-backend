@@ -7,7 +7,7 @@ Base = Base
 class UserPageInfo(Base):
     __tablename__ = "user_page_info"
 
-    userid_fk = Column(Integer, ForeignKey('Users.userid'), primary_key=True, index=True)
+    userid_fk = Column(Integer, ForeignKey('users.userid'), primary_key=True, index=True)
     departmentid_fk = Column(Integer, ForeignKey("department.departmentid"))
     full_name = Column(String(50))
     date_of_birth = Column(Date)
@@ -24,7 +24,7 @@ class UserPageInfo(Base):
     department = relationship('Department', back_populates='user_page_info')
 
 class Users(Base):
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     userid = Column(Integer, primary_key=True, index=True)
     e_mail = Column(String, unique=True, index=True)

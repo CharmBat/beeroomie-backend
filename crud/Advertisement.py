@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from models.Advertisement import AdPage,Photos,AdUtilities, Neighborhood, NumberOfRoom, District, Utilities
 from models.User import UserPageInfo
 from schemas.Advertisement import AdPageSchema,AdListingResponseSchema, AdPageResponseSchema
-from sqlalchemy.orm import Session
 
 
 class AdPageCRUD:
