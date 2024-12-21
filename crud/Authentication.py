@@ -18,7 +18,7 @@ class AuthCRUD:
     @staticmethod
     def add_user_to_db(email: str, hashed_password: str,db:Session):
         try:
-            db.add(Users(e_mail=email,hashed_password=hashed_password,is_confirmed=False))
+            db.add(Users(e_mail=email,hashed_password=hashed_password,is_confirmed=False,role=False))
             db.commit()
         except Exception as e:
             print(f"Database error in add_user_to_db: {e}")

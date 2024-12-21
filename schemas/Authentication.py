@@ -10,6 +10,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     userid: Optional[int] = None
+    role: Optional[bool] = None
 
 class UserBase(BaseModel):
     userid: int
