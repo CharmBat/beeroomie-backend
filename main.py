@@ -11,6 +11,7 @@ app.include_router(OfferManagement.router)
 app.include_router(UserPageInfo.router)
 app.include_router(favorites.router)
 
+
 @app.get("/ping")
 async def root():
     return {"message": "Welcome to the Beeroomie application!"}
