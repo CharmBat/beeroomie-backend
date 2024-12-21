@@ -30,6 +30,7 @@ class Users(Base):
     e_mail = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_confirmed = Column(Boolean, default=False)
+    role=Column(Boolean,default=False)
 
     # Relationship with AdPage
     ads = relationship('AdPage', back_populates='users', cascade="all, delete")
@@ -37,7 +38,19 @@ class Users(Base):
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")
 
-    offers = relationship('OfferModel', back_populates='users', uselist=False, cascade="all, delete")
+        # Offers relationships
+    sent_offers = relationship(
+        'OfferModel',
+        foreign_keys='OfferModel.offererid_fk',
+        back_populates='offerer',
+        cascade="all, delete"
+    )
+    received_offers = relationship(
+        'OfferModel',
+        foreign_keys='OfferModel.offereeid_fk',
+        back_populates='offeree',
+        cascade="all, delete"
+    )
 
 class Department(Base):
     __tablename__ = "department"
