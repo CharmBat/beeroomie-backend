@@ -1,13 +1,15 @@
 from sqlalchemy.orm import Session
 from models.User import Users
+from schemas.Authentication import UserInDB
 class AuthCRUD:
 
     @staticmethod
-    def get_user(email: str,db:Session):#get user from db who has the given email and confirmed
+    def get_user(email: str,db:Session): #get user from db who has the given email and confirmed
         try:
             user=db.query(Users).filter(Users.e_mail==email,Users.is_confirmed==True).first()
+            curret_user=UserInDB(userid=user.userid,e_mail=user.e_mail,role=user.role,hashed_password=user.hashed_password,is_confirmed=user.is_confirmed)
             if user:
-                return user
+                return curret_user
             return None
                 
         except Exception as e:

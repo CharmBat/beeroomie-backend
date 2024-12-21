@@ -3,7 +3,7 @@ from datetime import timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import get_password_hash,create_response,create_token,set_and_send_mail,verify_token_email,verify_password
-from schemas.Authentication import TokenData,AuthResponse
+from schemas.Authentication import AuthResponse, TokenData
 from crud.Authentication import AuthCRUD
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 from fastapi_mail import MessageSchema
@@ -72,20 +72,22 @@ class AuthenticationService:
 
 
     @staticmethod
-    async def get_current_user(token: str = Depends(oauth2_scheme)):#buraya db gelmesi lazım
+    async def get_current_user(token: str = Depends(oauth2_scheme)):
         credentials_exception = create_response(user_message="Couldn't validate your credentials.",
                 error_status=status.HTTP_401_UNAUTHORIZED,
                 system_message="Credentials validation failed.")
         
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            userid: int = payload.get("userid")
+            email: str = payload.get("email")
+            userid: str = payload.get("userid")
+            role: bool = payload.get("role")
+
             if userid is None:
                 return credentials_exception
-            token_data = TokenData(userid=userid)
         except JWTError:
             return credentials_exception
-        user = AuthCRUD.get_user(token_data.userid)#buraya db gelmesi lazım
+        user = TokenData(userid=userid,role=role)
         if user is None:
             return credentials_exception
         return user
@@ -109,7 +111,7 @@ class AuthenticationService:
         )
         
         # Return successful response
-        return create_response(token=access_token,
+        return create_response(access_token=access_token,
             user_message="Login successful",
             error_status=status.HTTP_200_OK,
             system_message=""

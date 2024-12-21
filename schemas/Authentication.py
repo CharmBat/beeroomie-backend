@@ -11,24 +11,23 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     userid: Optional[int] = None
     role: Optional[bool] = None
+    # full_name: Optional[str] = None
+    # is_confirmed: bool
 
-class UserBase(BaseModel):
+class UserInDB(BaseModel):
     userid: int
     e_mail: str
-
-class UserInDB(UserBase):
+    role: bool
     hashed_password: str
-
+    is_confirmed: bool
+    
 class RegisterRequest(BaseModel):
     email:str
     password: str
 
-class LoginRequest(BaseModel):
-    email:str
-    password: str    
 
 class AuthResponse(BaseModel):
-    token: Optional[str] = None
+    access_token: Optional[str] = None
     user_message: str
     error_status:int
     system_message: str    
