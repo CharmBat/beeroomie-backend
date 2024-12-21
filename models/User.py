@@ -30,6 +30,7 @@ class Users(Base):
     e_mail = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_confirmed = Column(Boolean, default=False)
+    role=Column(Boolean,default=False)
 
     # Relationship with AdPage
     ads = relationship('AdPage', back_populates='users', cascade="all, delete")

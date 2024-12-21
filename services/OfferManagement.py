@@ -2,13 +2,13 @@ from schemas.OfferManagement import OfferResponse, OfferResponseListing
 from crud.OfferManagement import OfferCRUD
 from fastapi import APIRouter, Depends, HTTPException
 from utils.Advertisement import get_user_by_ad
-from services.Authentication import get_current_user
+from services.Authentication import AuthenticationService
 class OfferService:
     @staticmethod
     def create_offer_service(adpage_id: int, description: str, db, token: str):
         try:
 
-            offererid_fk = get_current_user(token).userid
+            offererid_fk = AuthenticationService.get_current_user(token).userid
             
             offeree_id = get_user_by_ad(db, adpage_id)
             if not offeree_id:
@@ -60,7 +60,7 @@ class OfferService:
     @staticmethod
     def get_offers_service(token: str, db):
         try:
-            offereeid = get_current_user(token).userid
+            offereeid = AuthenticationService.get_current_user(token).userid
             offers = OfferCRUD.get_all(db, offereeid)
             return OfferResponseListing(
                 user_message="Successfully fetched Offers",
