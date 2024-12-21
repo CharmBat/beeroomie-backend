@@ -1,203 +1,101 @@
-from schemas.Authentication import UserInDB
-import psycopg2
-from config import DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_SSL
-from psycopg2.extras import DictCursor
-# Database configuration
-db_config = {
-    "dbname": DB_NAME,
-    "user": DB_USER,
-    "password": DB_PASSWORD,
-    "host": DB_HOST,
-    "port": DB_PORT,
-    "sslmode": DB_SSL  # Ensure SSL is enabled
-}
+from sqlalchemy.orm import Session
+from models.User import Users
+class AuthCRUD:
 
-def get_user(email: str):
-    connection = None
-    try:
-        # Connect to the database
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        
-        # Execute the query with parameters
-        query = "SELECT * FROM users WHERE e_mail = %s"
-        cursor.execute(query, (email,))
-        
-        # Fetch the user
-        user = cursor.fetchall()
-        if user:
-            return UserInDB(**user[0])
-        return None
+    @staticmethod
+    def get_user(email: str,db:Session):#get user from db who has the given email and confirmed
+        try:
+            user=db.query(Users).filter(Users.e_mail==email,Users.is_confirmed==True).first()
+            if user:
+                return user
+            return None
+                
+        except Exception as e:
+            print(f"Database error in get_user: {e}")
+            return None
+
             
-    except Exception as e:
-        print(f"Database error in get_user: {e}")
-        return None
-    finally:
-        # Clean up resources
-        if connection:
-            cursor.close()
-            connection.close()
+    @staticmethod
+    def add_user_to_db(email: str, hashed_password: str,db:Session):
+        try:
+            db.add(Users(e_mail=email,hashed_password=hashed_password,is_confirmed=False))
+            db.commit()
+        except Exception as e:
+            print(f"Database error in add_user_to_db: {e}")
 
+    @staticmethod
+    def confirm_user(userid: str,db:Session):
 
-def get_user_from_userid(userid: int):
-    connection = None
-    try:
-        # Connect to the database
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        
-        # Execute the query with parameters
-        query = "SELECT * FROM users WHERE userid = %s"
-        cursor.execute(query, (userid,))
-        
-        # Fetch the user
-        user = cursor.fetchall()
-        if user:
-            return UserInDB(**user[0])
-        return None
+        try:
+            user = db.query(Users).filter(Users.userid == userid).first()
+            if user:
+                db.query(Users).filter(Users.userid == userid).update({"is_confirmed": True})
+                db.commit()
+                print(f"User with userid {userid} confirmed successfully.")
+                return True
+            else:
+                print(f"No user found with userid {userid}.")
+                return False
+
+        except Exception as e:
+            print(f"Database error in confirm_user: {e}")
+            return False
+
+    @staticmethod
+    def delete_user(userid: str,db:Session):
+        try:
+            user=db.query(Users).filter(Users.userid == userid).first()
+            if user:
+                db.query(Users).filter(Users.userid == userid).delete()
+                db.commit()
+                print(f"User with userid {userid} deleted successfully.")
+            else:
+                print(f"No user found with userid {userid}.")    
+
+        except Exception as e:
+            print(f"Database error in delete_user: {e}")
+            return None
+
+    @staticmethod
+    def update_user_password(userid: str, hashed_password: str,db:Session):
+
+        try:
+            user=db.query(Users).filter(Users.userid == userid).first()
             
-    except Exception as e:
-        print(f"Database error in get_user: {e}")
-        return None
-    finally:
-        # Clean up resources
-        if connection:
-            cursor.close()
-            connection.close()
+            if user:
+                db.query(Users).filter(Users.userid == userid).update({"hashed_password": hashed_password})
+                db.commit()
+                print(f"Password updated successfully for user with userid {userid}.")
+            else:
+               print(f"No user found with userid {userid}.")
 
-def add_user_to_db(email: str, hashed_password: str):
-    connection = None
-    try:
-        # Connect to the database
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor()
-        
-        # Execute the insert query
-        query = """
-        INSERT INTO users (e_mail, hashed_password,is_confirmed)
-        VALUES (%s, %s,FALSE)
-        """
-        cursor.execute(query, (email, hashed_password))
-        
-        # Commit the transaction
-        connection.commit()
-            
-    except Exception as e:
-        print(f"Database error in add_user_to_db: {e}")
-        if connection:
-            connection.rollback()
-    finally:
-        # Clean up resources
-        if connection:
-            cursor.close()
-            connection.close()
+        except Exception as e:
+            print(f"Database error in update_user_password: {e}")
+            return None
 
+    @staticmethod
+    def get_userid_from_email(email: str,db:Session):
+        try:
+            user=db.query(Users).filter(Users.e_mail == email).first()
+            if user:
+                return user.userid
+            return None
+        except Exception as e:
+            print(f"Database error in get_userid_from_email: {e}")
+            return None
 
-def confirm_user(userid:str):
-    connection=None
-    try:
-    
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "UPDATE users SET is_confirmed = true WHERE userid = %s"
-        cursor.execute(query, (userid,))
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            print(f"User with userid {userid} confirmed successfully.")
-        else:
-            print(f"No user found with userid {userid} or the user is already confirmed.")
-        
-    except Exception as e:
-        print(f"Database error in confirm_user: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
+    @staticmethod
+    def confirm_user(email: str,db:Session):
+        try:
+            user=db.query(Users).filter(Users.e_mail == email).first()
 
-
-def delete_user(userid:str):
-    connection=None
-    try:
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "DELETE FROM users WHERE userid = %s"
-        cursor.execute(query, (userid,))
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            print(f"User with userid {userid} deleted successfully.")
-        else:
-            print(f"No user found with userid {userid} or the user is already deleted.")
-        
-    except Exception as e:
-        print(f"Database error in delete_user: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-
-def update_user_password(userid: str, hashed_password: str):
-    connection = None
-    
-    try:
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "UPDATE users SET hashed_password = %s WHERE userid = %s"
-        cursor.execute(query, (hashed_password, userid))
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            print(f"Password for user with userid {userid} updated successfully.")
-        else:
-            print(f"No user found with userid {userid} or the user is already deleted.")
-    except Exception as e:
-        print(f"Database error in update_user_password: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-
-def get_userid_from_email(email: str):
-    connection = None
-    try:
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "SELECT userid FROM users WHERE e_mail = %s"
-        cursor.execute(query, (email,))
-        userid = cursor.fetchone()
-        if userid:
-            return userid["userid"]
-        return None
-    except Exception as e:
-        print(f"Database error in get_userid_from_email: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()            
-
-def confirm_user(email: str):
-    connection = None
-    try:
-        connection = psycopg2.connect(**db_config)
-        cursor = connection.cursor(cursor_factory=DictCursor)
-        query = "UPDATE users SET is_confirmed = TRUE WHERE e_mail = %s"
-        cursor.execute(query, (email,))
-        connection.commit()
-        
-        if cursor.rowcount > 0:
-            print(f"User with email {email} confirmed successfully.")
-        else:
-            print(f"No user found with email {email} or the user is already confirmed.")
-        
-    except Exception as e:
-        print(f"Database error in confirm_user: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
+            if user:
+                db.query(Users).filter(Users.e_mail == email).update({"is_confirmed": True})
+                db.commit()
+                print(f"User with email {email} confirmed successfully.")
+            else:
+                print(f"No user found with email {email}.")    
+              
+        except Exception as e:
+            print(f"Database error in confirm_user: {e}")
+            return None
