@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
 from models.Advertisement import AdPage,Photos,AdUtilities, Neighborhood, NumberOfRoom, District, Utilities
-from models.User import UserPageInfo, Favorites
+from models.User import UserPageInfo
+from models.favorites import Favorites
 
 class favoritesCRUD:
     @staticmethod
