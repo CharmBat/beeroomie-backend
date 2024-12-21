@@ -37,6 +37,22 @@ class Users(Base):
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")
 
+    favorites = relationship('Favorites', back_populates='user', cascade="all, delete")
+
+        # Offers relationships
+    sent_offers = relationship(
+        'OfferModel',
+        foreign_keys='OfferModel.offererid_fk',
+        back_populates='offerer',
+        cascade="all, delete"
+    )
+    received_offers = relationship(
+        'OfferModel',
+        foreign_keys='OfferModel.offereeid_fk',
+        back_populates='offeree',
+        cascade="all, delete"
+    )
+
 class Department(Base):
     __tablename__ = "department"
 
@@ -45,3 +61,15 @@ class Department(Base):
 
     # Relationship with UserPageInfo
     user_page_info = relationship('UserPageInfo', back_populates='department', cascade="all, delete")
+
+
+class Favorites(Base):
+    __tablename__ = "favorites"
+
+    # Columns
+    userid_fk = Column(Integer, ForeignKey('users.userid', ondelete="CASCADE"), primary_key=True)
+    adpageid_fk = Column(Integer, ForeignKey('ad_page.adpageid', ondelete="CASCADE"), primary_key=True)
+
+    # Relationships
+    user = relationship("Users", back_populates="favorites")
+    ad_page = relationship("AdPage", back_populates="favorited_by")
