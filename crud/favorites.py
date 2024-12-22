@@ -61,22 +61,14 @@ class favoritesCRUD:
 
     @staticmethod
     def add_to_favorites(db: Session, user_id: int, adpage_id: int):
-        try:
             favorite = Favorites(userid_fk=user_id, adpageid_fk=adpage_id)
             db.add(favorite)
             db.commit()
-            return {"message": "Advertisement added to favorites successfully.", "status": 200}
-        except Exception as e:
-            db.rollback()
-            return {"message": f"Failed to add to favorites: {str(e)}", "status": 500}
+
         
         
     @staticmethod
     def remove_from_favorites(db: Session, user_id: int, adpage_id: int):
-        try:
             db.query(Favorites).filter(Favorites.userid_fk == user_id, Favorites.adpageid_fk == adpage_id).delete()
             db.commit()
-            return {"message": "Advertisement removed from favorites successfully.", "status": 200}
-        except Exception as e:
-            db.rollback()
-            return {"message": f"Failed to remove from favorites: {str(e)}", "status": 500}
+
