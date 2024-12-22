@@ -52,3 +52,50 @@ class AdministrationService:
                 system_message=str(e),
                 report_list=None
             )
+        
+    @staticmethod
+    def get_all_reports(db):
+        try:
+            reports = ReportsCRUD.get_all(db)
+            return create_response_reports(
+                user_message="Successfully fetched Reports",
+                error_status=0,
+                system_message="OK",
+                report_list = reports
+            )
+        except Exception as e:
+            return create_response_reports(
+                user_message="Failed to fetch Reports",
+                error_status=500,
+                system_message=str(e)
+            )
+        
+
+    @staticmethod
+    def ban_user_service(user_id: int, ban_reason: str, db):
+        try:
+            user = user_id
+            if not user:
+                return create_response_reports(
+                    user_message="Report not found",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="No report found with the given ID",
+                    report_list=None
+                )
+
+            ReportsCRUD.ban_user(db, user_id, ban_reason)
+            return create_response_reports(
+                user_message="Successfully banned user",
+                error_status=0,
+                system_message="OK",
+                report_list = None
+            )
+        except Exception as e:
+            return create_response_reports(
+                user_message="Failed to ban user",
+                error_status=500,
+                system_message=str(e)
+            )
+  
+
+

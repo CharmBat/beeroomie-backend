@@ -14,3 +14,12 @@ def report_user(report_data: ReportRequest, db: Session = Depends(get_db)):
 @router.delete("/report/{report_id}", response_model=ReportResponse)
 def delete_report(report_id: int, db: Session = Depends(get_db)):
     return AdministrationService.delete_report_service(report_id, db)
+
+
+@router.get("/report", response_model=ReportResponse)
+def get_reports(db: Session =Depends(get_db)):
+    return AdministrationService.get_all_reports(db)
+
+@router.delete("/report/{user_id}", response_model=ReportResponse)
+def ban_user(user_id: int, ban_reason:str, db: Session=Depends(get_db)):
+    return AdministrationService.ban_user_service(user_id, ban_reason, db)

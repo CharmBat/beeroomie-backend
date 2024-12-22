@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from models.Administration import Blacklist, Reports
 from schemas.Administration import BlacklistBase, BlacklistResponse, ReportBase, ReportRequest, ReportResponseSchema, ReportResponse
+from crud.Authentication import AuthCRUD
+from datetime import datetime
 
 class BlacklistCRUD:
     # Blacklist CRUD Operations
@@ -54,6 +56,18 @@ class BlacklistCRUD:
         db.delete(blacklist_entry)
         db.commit()
         return {"message": "Blacklist entry deleted successfully"}
+    
+
+    @staticmethod
+    def ban_user(db:Session, user_id: int, ban_reason: str):
+        blacklist_entry = BlacklistBase(
+                userid_fk=user_id,
+                ban_date=datetime.datetime.today(),
+                ban_reason=ban_reason
+        )
+        BlacklistCRUD.create_blacklist(db, blacklist_entry)
+        AuthCRUD.delete_user(user_id, db)
+
 
 class ReportsCRUD: 
     # Reports CRUD Operations
@@ -108,3 +122,27 @@ class ReportsCRUD:
         db.delete(report_entry)
         db.commit()
         return {"message": "Report deleted successfully"}
+    
+    @staticmethod
+    def get_all(db: Session):
+        query=(
+        db.query(
+                Reports.reporter,
+                Reports.reportee,
+                Reports.description
+            )
+        )
+        results = query.all()
+        return [
+            {
+                "reporter": result.reporter,
+                "reportee": result.reportee,
+                "description": result.description,
+            }
+            for result in results
+        ]
+    
+
+    
+        
+
