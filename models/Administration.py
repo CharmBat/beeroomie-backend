@@ -17,8 +17,8 @@ class Reports(Base):
     __tablename__ = "reports"
 
     reportid = Column(Integer, primary_key=True, autoincrement=True)
-    reporter = Column(Integer, ForeignKey('users.userid'), nullable=False)
-    reportee = Column(Integer, ForeignKey('users.userid'), nullable=False)
+    reporter = Column(Integer, ForeignKey('users.userid', ondelete="CASCADE"), nullable=False)
+    reportee = Column(Integer, ForeignKey('users.userid', ondelete="CASCADE"), nullable=False)
     description = Column(String(140), nullable=False)
     report_date = Column(Date, nullable=False)
 

@@ -5,7 +5,7 @@ from db.database import get_db
 from schemas.Administration import ReportRequest, ReportResponse
 from services.Administration import AdministrationService
 from services.Authentication import AuthenticationService
-# from schemas.Authentication import TokenData  # Tipik olarak
+from schemas.Authentication import TokenData
 
 router = APIRouter(prefix="/administration", tags=["Administration"])
 
@@ -24,6 +24,6 @@ def delete_report(report_id: int, db: Session = Depends(get_db)):
 def get_reports(db: Session =Depends(get_db)):
     return AdministrationService.get_all_reports(db)
 
-@router.delete("/report/{user_id}", response_model=ReportResponse)
-def ban_user(user_id: int, ban_reason:str, db: Session=Depends(get_db)):
-    return AdministrationService.ban_user_service(user_id, ban_reason, db)
+@router.delete("/ban/{user_id}", response_model=ReportResponse)
+def ban_user(token: TokenData, user_id: int, ban_reason:str, db: Session=Depends(get_db)):
+    return AdministrationService.ban_user_service(token, user_id, ban_reason, db)

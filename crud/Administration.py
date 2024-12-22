@@ -70,7 +70,7 @@ class BlacklistCRUD:
     def ban_user(db:Session, user_id: int, ban_reason: str):
         blacklist_entry = BlacklistBase(
                 userid_fk=user_id,
-                ban_date=datetime.datetime.today(),
+                ban_date=date.today(),
                 ban_reason=ban_reason
         )
         BlacklistCRUD.create_blacklist(db, blacklist_entry)

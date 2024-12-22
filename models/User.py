@@ -56,12 +56,14 @@ class Users(Base):
     reports_as_reporter = relationship(
         "Reports",
         foreign_keys="Reports.reporter",
-        back_populates="reporter_user"
+        back_populates="reporter_user",
+        cascade="all, delete"
     )
     reports_as_reportee = relationship(
         "Reports",
         foreign_keys="Reports.reportee",
-        back_populates="reportee_user"
+        back_populates="reportee_user",
+        cascade="all, delete"
     )
 
 class Department(Base):

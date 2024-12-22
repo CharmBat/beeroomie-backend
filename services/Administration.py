@@ -2,8 +2,11 @@ from fastapi import status
 from sqlalchemy.orm import Session
 from utils.Administration import create_response_reports
 from crud.Administration import ReportCRUD
+from crud.Administration import BlacklistCRUD
 from schemas.Administration import ReportRequest
+from schemas.Authentication import TokenData
 from models.Administration import Reports
+
 
 class AdministrationService:
     @staticmethod
@@ -101,18 +104,27 @@ class AdministrationService:
         
 
     @staticmethod
-    def ban_user_service(user_id: int, ban_reason: str, db):
+    def ban_user_service(token:TokenData, user_id: int, ban_reason: str, db):
         try:
+            if token.role != 0:
+                return create_response_reports(
+                    user_message="Not authoritized for this operation",
+                    error_status=0,
+                    system_message="Not authoritized for this operation",
+                    report_list = None
+                )
+    
+
             user = user_id
             if not user:
                 return create_response_reports(
-                    user_message="Report not found",
+                    user_message="User not found",
                     error_status=status.HTTP_404_NOT_FOUND,
-                    system_message="No report found with the given ID",
+                    system_message="User not found",
                     report_list=None
                 )
-
-            ReportCRUD.ban_user(db, user_id, ban_reason)
+            
+            BlacklistCRUD.ban_user(db, user_id, ban_reason)
             return create_response_reports(
                 user_message="Successfully banned user",
                 error_status=0,
