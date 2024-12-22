@@ -22,7 +22,7 @@ class UserPageInfo(Base):
     # Corrected relationship with User
     users = relationship('Users', back_populates='user_info', uselist=False)
     department = relationship('Department', back_populates='user_page_info')
-    blacklist = relationship("Blacklist", back_populates="user", uselist=False)
+    
 
 class Users(Base):
     __tablename__ = "users"
@@ -35,6 +35,7 @@ class Users(Base):
 
     # Relationship with AdPage
     ads = relationship('AdPage', back_populates='users', cascade="all, delete")
+    blacklist = relationship("Blacklist", back_populates="user", uselist=False)
 
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")
@@ -51,6 +52,16 @@ class Users(Base):
         foreign_keys='OfferModel.offereeid_fk',
         back_populates='offeree',
         cascade="all, delete"
+    )
+    reports_as_reporter = relationship(
+        "Reports",
+        foreign_keys="Reports.reporter",
+        back_populates="reporter_user"
+    )
+    reports_as_reportee = relationship(
+        "Reports",
+        foreign_keys="Reports.reportee",
+        back_populates="reportee_user"
     )
 
 class Department(Base):

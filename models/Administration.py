@@ -23,5 +23,13 @@ class Reports(Base):
     report_date = Column(Date, nullable=False)
 
     # Relationships to User
-    reporter_user = relationship("Users", foreign_keys=[reporter], back_populates="reports_made")
-    reportee_user = relationship("Users", foreign_keys=[reportee], back_populates="reports_received")
+    reporter_user = relationship(
+        "Users",
+        foreign_keys=[reporter],
+        back_populates="reports_as_reporter"
+    )
+    reportee_user = relationship(
+        "Users",
+        foreign_keys=[reportee],
+        back_populates="reports_as_reportee"
+    )

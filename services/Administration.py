@@ -1,21 +1,27 @@
-from crud.Administration import BlacklistCRUD, ReportsCRUD
-from schemas.Administration import ReportRequest, ReportResponse, ReportResponseSchema
 from fastapi import status
+from sqlalchemy.orm import Session
 from utils.Administration import create_response_reports
+from crud.Administration import ReportCRUD
+from schemas.Administration import ReportRequest
+from models.Administration import Reports
 
 class AdministrationService:
     @staticmethod
-    def report_user_service(report_data: ReportRequest, db):
+    def report_user_service(report_data: ReportRequest, db: Session, current_user) -> dict:
         try:
-            # Kullanıcıyı rapor et
-            report = ReportsCRUD.create_report(db, report_data)
+            report = ReportCRUD.create_report(
+                db=db,
+                report_data=report_data,
+                current_user_id=current_user.userid  # user ID
+            )
 
             return create_response_reports(
                 user_message=f"User reported successfully, Report ID: {report.report_id}",
                 error_status=status.HTTP_201_CREATED,
                 system_message="OK",
-                report_list=[report]
+                report_list=None  # veya [report] denilebilir
             )
+
         except Exception as e:
             return create_response_reports(
                 user_message="Failed to report user",
@@ -25,11 +31,16 @@ class AdministrationService:
             )
 
     @staticmethod
-    def delete_report_service(report_id: int, db):
+    def delete_report_service(report_id: int, db: Session, current_user) -> dict:
+        """
+        Rapor silme işlemi.
+        - Admin (current_user.role == True) her raporu silebilir.
+        - Admin değilse sadece kendi raporu silebilir.
+        """
         try:
-            # Raporu kontrol et
-            report = ReportsCRUD.get_reports_by_user(db, report_id)
-            if not report:
+            # 1) Silinecek rapor var mı?
+            report_entry = db.query(Reports).filter(Reports.reportid == report_id).first()
+            if not report_entry:
                 return create_response_reports(
                     user_message="Report not found",
                     error_status=status.HTTP_404_NOT_FOUND,
@@ -37,14 +48,32 @@ class AdministrationService:
                     report_list=None
                 )
 
-            # Raporu sil
-            ReportsCRUD.delete_report(db, report_id)
-            return create_response_reports(
-                user_message=f"Report {report_id} deleted successfully",
-                error_status=status.HTTP_200_OK,
-                system_message="OK",
-                report_list=None
-            )
+            # 2) Admin ise doğrudan silebilsin
+            if current_user.role is True:
+                ReportCRUD.delete_report(db, report_id)
+                return create_response_reports(
+                    user_message=f"Report {report_id} deleted successfully (You are Admin).",
+                    error_status=status.HTTP_200_OK,
+                    system_message="OK",
+                    report_list=None
+                )
+            else:
+                # Admin değil -> sadece raporu yazan kişi silebilsin
+                if report_entry.reporter != current_user.userid:
+                    return create_response_reports(
+                        user_message="You are not authorized to delete this report",
+                        error_status=status.HTTP_403_FORBIDDEN,
+                        system_message="Only the report owner or an admin can delete a report",
+                        report_list=None
+                    )
+                ReportCRUD.delete_report(db, report_id)
+                return create_response_reports(
+                    user_message=f"Report {report_id} deleted successfully.",
+                    error_status=status.HTTP_200_OK,
+                    system_message="OK",
+                    report_list=None
+                )
+
         except Exception as e:
             return create_response_reports(
                 user_message="Failed to delete report",
