@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict
 from typing import Optional
 from datetime import date
 
@@ -21,8 +21,8 @@ class UserPageInfoSchema(UserPageInfoBase):
 class UserPageInfoResponseSchema(UserPageInfoBase):
     userid_fk: int
     department_name: Optional[str]  # Department adı dahil edilebilir
-    class Config:
-        from_attributes = True
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class UserPageInfoResponse(BaseModel):
     user_info_list: Optional[list[UserPageInfoResponseSchema]] = None
