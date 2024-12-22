@@ -16,3 +16,7 @@ def get_user_favorites(user_id: int, pagination: int = 0, db: Session = Depends(
 @router.post("/add")
 def add_to_favorites(user_id: int, adpage_id: int, db: Session = Depends(get_db)):
     return favoritesService.add_to_favorites(user_id, adpage_id, db)
+
+@router.delete("/remove")
+def remove_from_favorites(user_id: int, adpage_id: int, db: Session = Depends(get_db)):
+    return favoritesService.remove_from_favorites(user_id, adpage_id, db)

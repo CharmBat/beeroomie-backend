@@ -49,6 +49,32 @@ class favoritesService:
                 "error_status": 500,
                 "system_message": str(e)
             }
+        
+
+        
+    @staticmethod
+    def remove_from_favorites(user_id: int, adpage_id: int, db):
+        try:
+            response = favoritesCRUD.remove_from_favorites(db, user_id, adpage_id)
+            
+            if response["status"] == 200:
+                return {
+                    "user_message": "Advertisement removed from favorites successfully.",
+                    "error_status": 200,
+                    "system_message": "OK"
+                }
+            else:
+                return {
+                    "user_message": "Failed to remove advertisement from favorites.",
+                    "error_status": response["status"],
+                    "system_message": response["message"]
+                }
+        except Exception as e:
+            return {
+                "user_message": "An unexpected error occurred.",
+                "error_status": 500,
+                "system_message": str(e)
+            }
 
 
 
