@@ -22,6 +22,7 @@ class UserPageInfo(Base):
     # Corrected relationship with User
     users = relationship('Users', back_populates='user_info', uselist=False)
     department = relationship('Department', back_populates='user_page_info')
+    blacklist = relationship("Blacklist", back_populates="user", uselist=False)
 
 class Users(Base):
     __tablename__ = "users"
