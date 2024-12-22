@@ -38,6 +38,8 @@ class Users(Base):
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")
 
+    favorites = relationship('Favorites', back_populates='user', cascade="all, delete")
+
         # Offers relationships
     sent_offers = relationship(
         'OfferModel',
@@ -60,3 +62,4 @@ class Department(Base):
 
     # Relationship with UserPageInfo
     user_page_info = relationship('UserPageInfo', back_populates='department', cascade="all, delete")
+
