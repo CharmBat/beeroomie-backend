@@ -20,13 +20,13 @@ class BlacklistResponse(BaseModel):
 
 # Report Schemas
 class ReportBase(BaseModel):
-    reporter: int
+    #reporter: int
     reportee: int
     description: str
     report_date: date
 
 class ReportRequest(BaseModel):
-    reporter: int
+    #reporter: int
     reportee: int
     description: str
 

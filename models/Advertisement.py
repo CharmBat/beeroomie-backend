@@ -8,7 +8,7 @@ class AdPage(Base):
     __tablename__ = "ad_page"
 
     adpageid = Column(Integer, primary_key=True, autoincrement=True)
-    serid_fk = Column(Integer, ForeignKey('users.userid'))  # Fixed ForeignKey reference
+    userid_fk = Column(Integer, ForeignKey('users.userid'))  # Fixed ForeignKey reference
     neighborhoodid_fk = Column(Integer, ForeignKey('neighborhood.neighborhoodid'))
     n_roomid_fk = Column(Integer, ForeignKey('numberofroom.n_roomid'))
     title = Column(String(100))
