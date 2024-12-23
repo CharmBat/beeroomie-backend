@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 from utils.Administration import create_response_reports
 from crud.Administration import ReportCRUD
 from crud.Administration import BlacklistCRUD
+from crud.Authentication import AuthCRUD
 from schemas.Administration import ReportRequest
 from schemas.Authentication import TokenData
 from models.Administration import Reports
+from models.User import Users
 
 
 class AdministrationService:
@@ -86,57 +88,63 @@ class AdministrationService:
             )
         
     @staticmethod
-    def get_all_reports(db):
+    def get_all_reports(db: Session):
         try:
             reports = ReportCRUD.get_all(db)
             return create_response_reports(
                 user_message="Successfully fetched Reports",
                 error_status=0,
                 system_message="OK",
-                report_list = reports
+                report_list=reports
             )
         except Exception as e:
             return create_response_reports(
                 user_message="Failed to fetch Reports",
                 error_status=500,
-                system_message=str(e)
+                system_message=str(e),
             )
         
 
     @staticmethod
-    def ban_user_service(token:TokenData, user_id: int, ban_reason: str, db):
+    def ban_user_service(token: TokenData, user_id: int, ban_reason: str, db: Session):
         try:
-            if token.role != 0:
-                return create_response_reports(
-                    user_message="Not authoritized for this operation",
-                    error_status=0,
-                    system_message="Not authoritized for this operation",
-                    report_list = None
-                )
-    
+            if not token.role:
+                return {
+                    "user_message": "Only admins can ban users",
+                    "error_status": status.HTTP_403_FORBIDDEN,
+                    "system_message": "User is not an admin",
+                }
 
-            user = user_id
+            user = db.query(Users).filter(Users.userid == user_id).first()
             if not user:
-                return create_response_reports(
-                    user_message="User not found",
-                    error_status=status.HTTP_404_NOT_FOUND,
-                    system_message="User not found",
-                    report_list=None
-                )
-            
+                return {
+                    "user_message": "User not found",
+                    "error_status": status.HTTP_404_NOT_FOUND,
+                    "system_message": "User does not exist",
+                }
+
+            reports = db.query(Reports).filter(
+                (Reports.reporter == user_id) | (Reports.reportee == user_id)
+            ).all()
+            for report in reports:
+                ReportCRUD.delete_report(db, report.reportid)
+
             BlacklistCRUD.ban_user(db, user_id, ban_reason)
-            return create_response_reports(
-                user_message="Successfully banned user",
-                error_status=0,
-                system_message="OK",
-                report_list = None
-            )
+            AuthCRUD.delete_user(user_id, db)
+
+            return {
+                "user_message": "User successfully banned and all associated reports deleted",
+                "error_status": status.HTTP_200_OK,
+                "system_message": "Operation successful",
+            }
+
         except Exception as e:
-            return create_response_reports(
-                user_message="Failed to ban user",
-                error_status=500,
-                system_message=str(e)
-            )
+            return {
+                "user_message": "Failed to ban user",
+                "error_status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "system_message": str(e),
+            }
+
   
 
 

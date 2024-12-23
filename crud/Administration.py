@@ -1,16 +1,10 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from datetime import date
 from models.Administration import Blacklist, Reports
 from schemas.Administration import BlacklistBase, BlacklistResponse, ReportBase, ReportRequest, ReportResponseSchema, ReportResponse
 from crud.Authentication import AuthCRUD
 from datetime import datetime
-from schemas.Administration import (
-    BlacklistBase,
-    BlacklistResponse,
-    ReportRequest,
-    ReportResponseSchema,
-    ReportResponse
-)
+from models.User import UserPageInfo
 
 class BlacklistCRUD:
     @staticmethod
@@ -153,22 +147,29 @@ class ReportCRUD:
     
     @staticmethod
     def get_all(db: Session):
-        query=(
-        db.query(
+        # Aliases for UserPageInfo
+        reporter_info = aliased(UserPageInfo)
+        reportee_info = aliased(UserPageInfo)
+
+        query = (
+            db.query(
                 Reports.reportid,
-                Reports.reporter,
-                Reports.reportee,
+                reporter_info.full_name.label("reporter_name"),
+                reportee_info.full_name.label("reportee_name"),
                 Reports.description,
                 Reports.report_date
             )
+            .join(reporter_info, Reports.reporter == reporter_info.userid_fk)
+            .join(reportee_info, Reports.reportee == reportee_info.userid_fk)
         )
         results = query.all()
+
         return [
             {
-                "report_id" : result.reportid,
-                "report_date" : result.report_date,
-                "reporter": result.reporter,
-                "reportee": result.reportee,
+                "report_id": result.reportid,
+                "report_date": result.report_date,
+                "reporter": result.reporter_name,
+                "reportee": result.reportee_name,
                 "description": result.description,
             }
             for result in results

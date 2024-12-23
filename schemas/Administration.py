@@ -32,8 +32,8 @@ class ReportRequest(BaseModel):
 
 class ReportResponseSchema(BaseModel):
     report_id: int
-    reporter: int
-    reportee: int
+    reporter: str
+    reportee: str
     description: str
     report_date: date
 
