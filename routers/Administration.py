@@ -11,7 +11,7 @@ router = APIRouter(prefix="/administration", tags=["Administration"])
 
 
 @router.post("/report", response_model=ReportResponse)
-async def create_report(report_data: ReportRequest, db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
+async def create_report(report_data: ReportRequest, db: Session = Depends(get_db), current_user: TokenData = Depends(AuthenticationService.get_current_user)):
     return AdministrationService.report_user_service(report_data, db, current_user)
 
 

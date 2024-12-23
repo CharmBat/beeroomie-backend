@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, aliased
 from datetime import date
 from models.Administration import Blacklist, Reports
-from schemas.Administration import BlacklistBase, BlacklistResponse, ReportBase, ReportRequest, ReportResponseSchema, ReportResponse
+from schemas.Administration import BlacklistBase, BlacklistResponse, ReportBase, ReportRequest, ReportResponseSchema, ReportResponse, ReportResponseSchema2
 from crud.Authentication import AuthCRUD
 from datetime import datetime
 from models.User import UserPageInfo
@@ -110,7 +110,7 @@ class ReportCRUD:
         )
 
     @staticmethod
-    def create_report(db: Session, report_data: ReportRequest, current_user_id: int) -> ReportResponseSchema:
+    def create_report(db: Session, report_data: ReportRequest, current_user_id: int) -> ReportResponseSchema2:
         """
         Yeni rapor oluşturma işlemi.
         'reporter' değeri, parametre olarak alınan current_user_id olacak.
@@ -125,7 +125,7 @@ class ReportCRUD:
         db.commit()
         db.refresh(new_report)
 
-        return ReportResponseSchema(
+        return ReportResponseSchema2(
             report_id=new_report.reportid,
             reporter=new_report.reporter,
             reportee=new_report.reportee,

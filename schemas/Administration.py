@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Union
 from datetime import date
 
 # Blacklist Schemas
@@ -30,6 +30,17 @@ class ReportRequest(BaseModel):
     reportee: int
     description: str
 
+
+class ReportResponseSchema2(BaseModel):
+    report_id: int
+    reporter: int
+    reportee: int
+    description: str
+    report_date: date
+
+    class Config:
+        from_attributes = True
+
 class ReportResponseSchema(BaseModel):
     report_id: int
     reporter: str
@@ -41,7 +52,7 @@ class ReportResponseSchema(BaseModel):
         from_attributes = True
 
 class ReportResponse(BaseModel):
-    report_list: Optional[List[ReportResponseSchema]] = None
+    report_list: Optional[List[Union[ReportResponseSchema, ReportResponseSchema2]]] = None
     user_message: str
     error_status: int
     system_message: str
