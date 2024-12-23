@@ -35,7 +35,6 @@ class Users(Base):
 
     # Relationship with AdPage
     ads = relationship('AdPage', back_populates='users', cascade="all, delete")
-    blacklist = relationship("Blacklist", back_populates="user", uselist=False)
 
     # Corrected relationship with UserPageInfo
     user_info = relationship('UserPageInfo', back_populates='users', uselist=False, cascade="all, delete")

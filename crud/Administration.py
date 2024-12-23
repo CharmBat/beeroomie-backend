@@ -14,15 +14,15 @@ from schemas.Administration import (
 
 class BlacklistCRUD:
     @staticmethod
-    def get_blacklist_by_user(db: Session, user_id: int) -> BlacklistResponse:
+    def get_blacklist_by_user(db: Session, e_mail: str) -> BlacklistResponse:
         blacklist_entries = (
             db.query(Blacklist)
-            .filter(Blacklist.userid_fk == user_id)
+            .filter(Blacklist.e_mail == e_mail)
             .all()
         )
         response_data = [
             BlacklistBase(
-                userid_fk=entry.userid_fk,
+                e_mail=entry.e_mail,
                 ban_date=entry.ban_date,
                 ban_reason=entry.ban_reason
             )
@@ -44,7 +44,7 @@ class BlacklistCRUD:
 
         response_data = [
             BlacklistBase(
-                userid_fk=blacklist_entry.userid_fk,
+                e_mail=blacklist_entry.e_mail,
                 ban_date=blacklist_entry.ban_date,
                 ban_reason=blacklist_entry.ban_reason
             )
@@ -57,8 +57,8 @@ class BlacklistCRUD:
         )
 
     @staticmethod
-    def delete_blacklist(db: Session, user_id: int) -> dict:
-        blacklist_entry = db.query(Blacklist).filter(Blacklist.userid_fk == user_id).first()
+    def delete_blacklist(db: Session, e_mail: str) -> dict:
+        blacklist_entry = db.query(Blacklist).filter(Blacklist.e_mail == e_mail).first()
         if not blacklist_entry:
             return {"message": "Blacklist entry not found"}
         db.delete(blacklist_entry)
@@ -68,8 +68,9 @@ class BlacklistCRUD:
 
     @staticmethod
     def ban_user(db:Session, user_id: int, ban_reason: str):
+        e_mail = AuthCRUD.get_email_from_userid(user_id, db)
         blacklist_entry = BlacklistBase(
-                userid_fk=user_id,
+                e_mail=e_mail,
                 ban_date=date.today(),
                 ban_reason=ban_reason
         )

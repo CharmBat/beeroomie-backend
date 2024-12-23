@@ -4,7 +4,7 @@ from datetime import date
 
 # Blacklist Schemas
 class BlacklistBase(BaseModel):
-    userid_fk: int
+    e_mail: str
     ban_date: date
     ban_reason: str
 

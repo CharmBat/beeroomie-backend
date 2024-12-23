@@ -5,12 +5,10 @@ from .base import Base
 class Blacklist(Base):
     __tablename__ = "blacklist"
 
-    userid_fk = Column(Integer, ForeignKey('users.userid'), primary_key=True)
+    e_mail = Column(String(60), primary_key=True)
     ban_date = Column(Date, nullable=False)
     ban_reason = Column(String(150), nullable=False)
 
-    # Relationship to User
-    user = relationship("Users", back_populates="blacklist")
 
 
 class Reports(Base):

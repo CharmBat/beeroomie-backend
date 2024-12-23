@@ -101,3 +101,15 @@ class AuthCRUD:
         except Exception as e:
             print(f"Database error in confirm_user: {e}")
             return None
+        
+
+    @staticmethod
+    def get_email_from_userid(userid: int,db:Session):
+        try:
+            user=db.query(Users).filter(Users.userid == userid).first()
+            if user:
+                return user.e_mail
+            return None
+        except Exception as e:
+            print(f"Database error in get_email_from_userid: {e}")
+            return None
