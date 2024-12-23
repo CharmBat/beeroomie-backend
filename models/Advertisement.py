@@ -31,6 +31,7 @@ class AdPage(Base):
     room_type = relationship('NumberOfRoom', back_populates='ads')
     photos = relationship('Photos', back_populates='ad_page', cascade="all, delete")
     ad_utilities = relationship('AdUtilities', back_populates='ad_page', cascade="all, delete")
+    favorited_by = relationship('Favorites', back_populates='ad_page', cascade="all, delete")
 
 class NumberOfRoom(Base):
     __tablename__ = "numberofroom"

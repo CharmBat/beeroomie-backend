@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers import Authentication, Advertisement, OfferManagement,UserPageInfo, Administration
+from routers import Authentication, Advertisement, OfferManagement,UserPageInfo, favorites
 
 # FastAPI uygulaması oluşturma
 app = FastAPI()
@@ -10,6 +11,8 @@ app.include_router(Advertisement.router)
 app.include_router(OfferManagement.router)
 app.include_router(UserPageInfo.router)
 app.include_router(Administration.router)
+app.include_router(favorites.router)
+
 
 @app.get("/ping")
 async def root():

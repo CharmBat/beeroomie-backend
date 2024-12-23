@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict
 from datetime import date
 from typing import Optional,List,Union
 
@@ -24,8 +24,8 @@ class AdPageSchema(AdPageBase):
     userid_fk: int
     neighborhoodid_fk: int
     n_roomid_fk: int
-    class Config:
-        from_attributes = True
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class AdPageRequest(AdPageSchema):
     photos: list[str]
@@ -51,8 +51,7 @@ class AdPageResponseSchema(AdPageBase):
     photos: list[str]
     utilities:List[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AdListingResponseSchema(BaseModel):
     adpageid: int
