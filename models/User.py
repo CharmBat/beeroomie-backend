@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, Integer, String, Date,ForeignKey
 from sqlalchemy.orm import relationship
-from .base import Base
+from db.database import Base
 
 Base = Base
 
