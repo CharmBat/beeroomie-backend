@@ -96,54 +96,54 @@ class AdministrationService:
                 system_message=str(e),
                 report_list=None
             )
-        
+            
 
-@staticmethod
-def ban_user_service(token: TokenData, user_id: int, ban_reason: str, db: Session) -> dict:
-    try:
-        if not token.role:
+    @staticmethod
+    def ban_user_service(token: TokenData, user_id: int, ban_reason: str, db: Session) -> dict:
+        try:
+            if not token.role:
+                return create_response_reports(
+                    user_message="Only admins can ban users",
+                    error_status=status.HTTP_403_FORBIDDEN,
+                    system_message="User is not an admin",
+                    report_list=None
+                )
+
+            user = db.query(Users).filter(Users.userid == user_id).first()
+            if not user:
+                return create_response_reports(
+                    user_message="User not found",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="User does not exist",
+                    report_list=None
+                )
+
+            reports = db.query(Reports).filter(
+                (Reports.reporter == user_id) | (Reports.reportee == user_id)
+            ).all()
+            for report in reports:
+                ReportCRUD.delete_report(db, report.reportid)
+
+            BlacklistCRUD.ban_user(db, user_id, ban_reason)
+            AuthCRUD.delete_user(user_id, db)
+
             return create_response_reports(
-                user_message="Only admins can ban users",
-                error_status=status.HTTP_403_FORBIDDEN,
-                system_message="User is not an admin",
+                user_message="User successfully banned and all associated reports deleted",
+                error_status=status.HTTP_200_OK,
+                system_message="Operation successful",
                 report_list=None
             )
 
-        user = db.query(Users).filter(Users.userid == user_id).first()
-        if not user:
+        except Exception as e:
             return create_response_reports(
-                user_message="User not found",
-                error_status=status.HTTP_404_NOT_FOUND,
-                system_message="User does not exist",
+                user_message="Failed to ban user",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e),
                 report_list=None
             )
 
-        reports = db.query(Reports).filter(
-            (Reports.reporter == user_id) | (Reports.reportee == user_id)
-        ).all()
-        for report in reports:
-            ReportCRUD.delete_report(db, report.reportid)
-
-        BlacklistCRUD.ban_user(db, user_id, ban_reason)
-        AuthCRUD.delete_user(user_id, db)
-
-        return create_response_reports(
-            user_message="User successfully banned and all associated reports deleted",
-            error_status=status.HTTP_200_OK,
-            system_message="Operation successful",
-            report_list=None
-        )
-
-    except Exception as e:
-        return create_response_reports(
-            user_message="Failed to ban user",
-            error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            system_message=str(e),
-            report_list=None
-        )
 
 
-
-  
+    
 
 
