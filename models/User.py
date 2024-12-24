@@ -22,6 +22,7 @@ class UserPageInfo(Base):
     # Corrected relationship with User
     users = relationship('Users', back_populates='user_info', uselist=False)
     department = relationship('Department', back_populates='user_page_info')
+    
 
 class Users(Base):
     __tablename__ = "users"
@@ -51,6 +52,18 @@ class Users(Base):
         'OfferModel',
         foreign_keys='OfferModel.offereeid_fk',
         back_populates='offeree',
+        cascade="all, delete"
+    )
+    reports_as_reporter = relationship(
+        "Reports",
+        foreign_keys="Reports.reporter",
+        back_populates="reporter_user",
+        cascade="all, delete"
+    )
+    reports_as_reportee = relationship(
+        "Reports",
+        foreign_keys="Reports.reportee",
+        back_populates="reportee_user",
         cascade="all, delete"
     )
 
