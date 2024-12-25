@@ -9,11 +9,11 @@ class AdvertisementService:
 
 class AdvertisementService:
     @staticmethod
-    def create_adpage_service(adpage: AdPageRequest, db):
+    def create_adpage_service(adpage: AdPageRequest, db, user_id: int):
         try:
             # Sadece AdPageSchema ile ilgili alanları filtrele
             adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
-
+            adpage_schema_data["userid"] = user_id
             # AdPageSchema nesnesine dönüştür
             adpage_schema = AdPageSchema(**adpage_schema_data)
 
@@ -40,7 +40,7 @@ class AdvertisementService:
 
 
     @staticmethod
-    def update_adpage_service(adpage_id: int, adpage: AdPageRequest, db):
+    def update_adpage_service(adpage_id: int, adpage: AdPageRequest, db, userid: int):
         try:
             # Advertisement'ı ID ile kontrol et
             db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
@@ -53,7 +53,7 @@ class AdvertisementService:
 
             # Sadece AdPageSchema ile ilgili alanları filtrele
             adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
-
+            adpage_schema_data["userid"] = userid
             # AdPageSchema nesnesine dönüştür
             adpage_schema = AdPageSchema(**adpage_schema_data)
 

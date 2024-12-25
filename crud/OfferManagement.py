@@ -46,7 +46,13 @@ class OfferCRUD:
             }
             for result in results
         ]
-            
+        
+    @staticmethod
+    def get_userid_by_offer(db: Session, offerid: int) -> int:
+        offer = db.query(OfferModel).filter(OfferModel.offerid == offerid).first()
+        if not offer:
+            return None
+        return offer.offererid_fk
 
 
 

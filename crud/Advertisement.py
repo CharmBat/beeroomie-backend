@@ -183,6 +183,16 @@ class AdPageCRUD:
         return db_adpage
     
     @staticmethod
+    def get_userid_by_ad(db: Session, adpage_id: int):
+        userid = (
+            db.query(AdPage.userid_fk)
+            .filter(AdPage.adpageid == adpage_id)
+            .first()
+        )
+        return userid
+
+
+    @staticmethod
     def update(db: Session, adpage_id: int, adpage: AdPageSchema) -> AdPage:
         db_adpage = db.query(AdPage).filter(AdPage.adpageid == adpage_id).first()
         if not db_adpage:
@@ -214,6 +224,7 @@ class PhotosCRUD:
     def delete_photos(db: Session, adpage_id: int):
         db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
         db.commit()
+
 
 class AdUtilitiesCRUD:
     @staticmethod

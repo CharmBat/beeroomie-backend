@@ -39,10 +39,11 @@ class UserPageInfoService:
             )
 
     @staticmethod
-    def create_user_page_info_service(user_page_info: UserPageInfoSchema, db):
+    def create_user_page_info_service(user_page_info: UserPageInfoSchema, db,user_id):
         try:
             # Doğrulama
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
+            validated_user_info.userid_fk = user_id
             created_user_info = UserPageInfoCRUD.create(db, validated_user_info)
             return user_page_info_response(
                 user_message=f"UserPageInfo created successfully for user {created_user_info.userid_fk}",

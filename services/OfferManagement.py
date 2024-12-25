@@ -5,10 +5,10 @@ from utils.Advertisement import get_user_by_ad
 from services.Authentication import AuthenticationService
 class OfferService:
     @staticmethod
-    def create_offer_service(adpage_id: int, description: str, db, token: str):
+    def create_offer_service(adpage_id: int, description: str, db, userid: int):
         try:
 
-            offererid_fk = AuthenticationService.get_current_user(token).userid
+            offererid_fk = userid
             
             offeree_id = get_user_by_ad(db, adpage_id)
             if not offeree_id:
@@ -58,9 +58,9 @@ class OfferService:
             )
         
     @staticmethod
-    def get_offers_service(token: str, db):
+    def get_offers_service(token: str, db,user_id: int):
         try:
-            offereeid = AuthenticationService.get_current_user(token).userid
+            offereeid = user_id
             offers = OfferCRUD.get_all(db, offereeid)
             return OfferResponseListing(
                 user_message="Successfully fetched Offers",

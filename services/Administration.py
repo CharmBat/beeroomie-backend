@@ -12,12 +12,12 @@ from models.User import Users
 
 class AdministrationService:
     @staticmethod
-    def report_user_service(report_data: ReportRequest, db: Session, current_user) -> dict:
+    def report_user_service(report_data: ReportRequest, db: Session, user_id) -> dict:
         try:
             report = ReportCRUD.create_report(
                 db=db,
                 report_data=report_data,
-                current_user_id=current_user.userid 
+                current_user_id=user_id 
             )
 
             return create_response_reports(
@@ -36,7 +36,7 @@ class AdministrationService:
             )
 
     @staticmethod
-    def delete_report_service(report_id: int, db: Session, current_user) -> dict:
+    def delete_report_service(report_id: int, db: Session, user_role,user_id) -> dict:
         try:
             report_entry = db.query(Reports).filter(Reports.reportid == report_id).first()
             if not report_entry:
@@ -47,7 +47,7 @@ class AdministrationService:
                     report_list=None
                 )
 
-            if current_user.role is True:
+            if user_role is True:
                 ReportCRUD.delete_report(db, report_id)
                 return create_response_reports(
                     user_message=f"Report {report_id} deleted successfully (You are Admin).",
@@ -56,7 +56,7 @@ class AdministrationService:
                     report_list=None
                 )
             else:
-                if report_entry.reporter != current_user.userid:
+                if report_entry.reporter != user_id:
                     return create_response_reports(
                         user_message="You are not authorized to delete this report",
                         error_status=status.HTTP_403_FORBIDDEN,
@@ -80,7 +80,14 @@ class AdministrationService:
             )
         
     @staticmethod
-    def get_all_reports(db: Session):
+    def get_all_reports(db: Session,role):
+        if role is False:
+            return create_response_reports(
+                user_message="Only admins can view all reports",
+                error_status=status.HTTP_403_FORBIDDEN,
+                system_message="User is not an admin",
+                report_list=None
+            )
         try:
             reports = ReportCRUD.get_all(db)
             return create_response_reports(
@@ -99,9 +106,9 @@ class AdministrationService:
             
 
     @staticmethod
-    def ban_user_service(token: TokenData, user_id: int, ban_reason: str, db: Session) -> dict:
+    def ban_user_service(role, user_id: int, ban_reason: str, db: Session) -> dict:
         try:
-            if not token.role:
+            if role is False:
                 return create_response_reports(
                     user_message="Only admins can ban users",
                     error_status=status.HTTP_403_FORBIDDEN,

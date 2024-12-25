@@ -13,23 +13,31 @@ router = APIRouter(
 
 @router.get("/", response_model=AdPageResponse)
 def get_user_favorites(pagination: int = 0, db: Session = Depends(get_db), 
-    user: TokenData = Depends(AuthenticationService.get_current_user)
-):
-    return favoritesService.get_user_favorites(user.userid, db, pagination)
+    current_user: TokenData = Depends(AuthenticationService.get_current_user)):
+    if isinstance(current_user, TokenData):
+        return favoritesService.get_user_favorites(current_user.userid, db, pagination)
+    else:
+        return current_user
 
 @router.post("/")
 def add_to_favorites(
     adpage_id: int, 
     db: Session = Depends(get_db), 
-    user: TokenData = Depends(AuthenticationService.get_current_user)
-):
-    return favoritesService.add_to_favorites(user.userid, adpage_id, db)
+    current_user: TokenData = Depends(AuthenticationService.get_current_user)):
+    if isinstance(current_user, TokenData):
+        return favoritesService.add_to_favorites(current_user.userid, adpage_id, db)
+    else:
+        return current_user
+    
 
 @router.delete("/")
 def remove_from_favorites(
     adpage_id: int, 
     db: Session = Depends(get_db), 
-    user: TokenData = Depends(AuthenticationService.get_current_user)
-):
-    return favoritesService.remove_from_favorites(user.userid, adpage_id, db)
+    current_user: TokenData = Depends(AuthenticationService.get_current_user)):
+    if isinstance(current_user, TokenData):
+        return favoritesService.remove_from_favorites(current_user.userid, adpage_id, db)
+    else:
+        return current_user
+    
 
