@@ -25,23 +25,23 @@ class AuthCRUD:
         except Exception as e:
             print(f"Database error in add_user_to_db: {e}")
 
-    @staticmethod
-    def confirm_user(userid: str,db:Session):
+    # @staticmethod
+    # def confirm_user(userid: str,db:Session):
 
-        try:
-            user = db.query(Users).filter(Users.userid == userid).first()
-            if user:
-                db.query(Users).filter(Users.userid == userid).update({"is_confirmed": True})
-                db.commit()
-                print(f"User with userid {userid} confirmed successfully.")
-                return True
-            else:
-                print(f"No user found with userid {userid}.")
-                return False
+    #     try:
+    #         user = db.query(Users).filter(Users.userid == userid).first()
+    #         if user:
+    #             db.query(Users).filter(Users.userid == userid).update({"is_confirmed": True})
+    #             db.commit()
+    #             print(f"User with userid {userid} confirmed successfully.")
+    #             return True
+    #         else:
+    #             print(f"No user found with userid {userid}.")
+    #             return False
 
-        except Exception as e:
-            print(f"Database error in confirm_user: {e}")
-            return False
+    #     except Exception as e:
+    #         print(f"Database error in confirm_user: {e}")
+    #         return None
 
     @staticmethod
     def delete_user(userid: str,db:Session):
@@ -95,9 +95,10 @@ class AuthCRUD:
                 db.query(Users).filter(Users.e_mail == email).update({"is_confirmed": True})
                 db.commit()
                 print(f"User with email {email} confirmed successfully.")
+                return True
             else:
                 print(f"No user found with email {email}.")    
-              
+                return False
         except Exception as e:
             print(f"Database error in confirm_user: {e}")
             return None

@@ -25,9 +25,9 @@ async def register_user(register_request: RegisterRequest, db: Session = Depends
 async def confirm_user(token: str, db: Session = Depends(get_db)):
     return AuthenticationService.confirm_user_service(token,db)
 
-@router.delete("/auth/delete/{token}", response_model=AuthResponse)
-async def delete_user(token: str, db: Session = Depends(get_db)):
-    return AuthenticationService.delete_user_service(token,db)
+@router.delete("/auth/delete/{userid}", response_model=AuthResponse)
+async def delete_user(userid: str, db: Session = Depends(get_db)):
+    return AuthenticationService.delete_user_service(userid,db)
 
 
 @router.get("/auth/change-password/{token}")

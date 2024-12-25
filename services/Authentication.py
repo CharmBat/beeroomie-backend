@@ -59,7 +59,7 @@ class AuthenticationService:
 
     @staticmethod
     def confirm_user_service(token,db):
-        
+        result=AuthCRUD.confirm_user("email@itu.edu.tr",db)
         token_verification_response=verify_token_email(token,VERIFICATION_KEY)
         if token_verification_response.error_status==status.HTTP_200_OK:
             payload = jwt.decode(token, VERIFICATION_KEY, algorithms=[ALGORITHM])
@@ -118,19 +118,17 @@ class AuthenticationService:
         )
 
     @staticmethod
-    def delete_user_service(token,db):
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        userid = payload.get("userid")
-            
-        if userid is None:
-                return create_response(user_message="UserId not found in token",error_status=status.HTTP_400_BAD_REQUEST,system_message="UserId not found in token")
+    def delete_user_service(userid,db):
+        if not AuthCRUD.get_user(userid,db):
+            return create_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
+
         try:
             AuthCRUD.delete_user(userid,db)
             return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
     
         except Exception as e:
-            print(f"Invalid token or confirmation failed: {e}")
-            return create_response(user_message="Invalid token or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid token or deletion failed.") 
+            print(f"Invalid userid or confirmation failed: {e}")
+            return create_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
     
 
 
