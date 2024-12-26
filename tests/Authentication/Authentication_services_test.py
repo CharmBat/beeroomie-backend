@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from  import Base, engine, client
+from ..conftest import Base, engine, client
 from config import VERIFICATION_KEY, SECRET_KEY
 from jose import jwt
 from datetime import datetime, timedelta
