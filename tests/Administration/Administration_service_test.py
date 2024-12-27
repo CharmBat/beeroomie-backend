@@ -51,9 +51,9 @@ def test_delete_report_service_admin(mock_db):
 
 def test_delete_report_service_non_admin_authorized(mock_db):
     mock_report_id = 1  
-    mock_reporter_id = 2 
+    mock_reporter_id = 2
     mock_user_role = False  
-    mock_user_id = 2  
+    mock_user_id = 2
 
     mock_report = MagicMock()
     mock_report.reportid = mock_report_id
@@ -94,17 +94,10 @@ def test_get_all_reports_admin(mock_db):
     mock_reports = [
         ReportResponseSchema(
             report_id=1,
-            reporter="user2fullname",
-            reportee="mel",
-            description="demo",
-            report_date="2024-12-27"
-        ),
-        ReportResponseSchema(
-            report_id=5,
-            reporter="mel",
-            reportee="user4fullname",
+            reporter="reporter1",
+            reportee="reportee1",
             description="string",
-            report_date="2024-12-28"
+            report_date="2024-12-27"
         )
     ]
 
@@ -125,20 +118,16 @@ def test_get_all_reports_non_admin(mock_db):
     assert response.user_message == "Only admins can view all reports"
     assert response.error_status == status.HTTP_403_FORBIDDEN
 
-from unittest.mock import patch, MagicMock
-
-from unittest.mock import patch, MagicMock
 
 def test_ban_user_service_admin(mock_db):
     mock_user_role = True  
 
-    mock_user_id = 2  # Banlanacak kullanıcı
+    mock_user_id = 1 
     mock_user = MagicMock()
     mock_user.userid = mock_user_id
 
     existing_reports = [
-        MagicMock(reportid=1, reporter=2, reportee=5, description="demo", report_date="2024-12-27"),
-        MagicMock(reportid=5, reporter=5, reportee=4, description="string", report_date="2024-12-28")
+        MagicMock(reportid=1, reporter=1, reportee=5, description="string", report_date="2024-12-27")
     ]
 
     with patch.object(mock_db, 'query') as mock_query:
