@@ -40,7 +40,7 @@ CREATE TABLE User_page_info (
     ppURL 					TEXT,
     about 					VARCHAR(300),
     contact 				VARCHAR(100),
-    RH 						BOOLEAN DEAULT FALSE,
+    RH 						BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (userID_FK) REFERENCES Users(userID) ON DELETE CASCADE,
     FOREIGN KEY (departmentID_FK) REFERENCES Department(departmentID)
 );
