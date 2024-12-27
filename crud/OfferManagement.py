@@ -34,6 +34,7 @@ class OfferCRUD:
                 UserPageInfo.contact
             )
             .join(UserPageInfo, UserPageInfo.userid_fk == OfferModel.offererid_fk)   
+            .filter(OfferModel.offereeid_fk == offereeid_fk)
         )
         
         results = query.all()

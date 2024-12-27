@@ -3,6 +3,7 @@ from crud.OfferManagement import OfferCRUD
 from fastapi import APIRouter, Depends, HTTPException
 from utils.Advertisement import get_user_by_ad
 from services.Authentication import AuthenticationService
+
 class OfferService:
     @staticmethod
     def create_offer_service(adpage_id: int, description: str, db, userid: int):
@@ -58,7 +59,7 @@ class OfferService:
             )
         
     @staticmethod
-    def get_offers_service(token: str, db,user_id: int):
+    def get_offers_service(token: str, db, user_id):
         try:
             offereeid = user_id
             offers = OfferCRUD.get_all(db, offereeid)
