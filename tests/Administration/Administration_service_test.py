@@ -3,13 +3,11 @@ from unittest.mock import MagicMock, patch
 from fastapi import status
 from sqlalchemy.orm import Session
 from services.Administration import AdministrationService
-from models.Administration import Reports
 from models.User import Users
-from schemas.Administration import ReportRequest
+from schemas.Administration import ReportRequest, ReportResponseSchema  
 from crud.Administration import ReportCRUD
 from crud.Administration import BlacklistCRUD
 from crud.Authentication import AuthCRUD
-from schemas.Administration import ReportResponseSchema  
 
 @pytest.fixture
 def mock_db():
