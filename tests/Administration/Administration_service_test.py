@@ -9,6 +9,7 @@ from schemas.Administration import ReportRequest
 from crud.Administration import ReportCRUD
 from crud.Administration import BlacklistCRUD
 from crud.Authentication import AuthCRUD
+from schemas.Administration import ReportResponseSchema  
 
 @pytest.fixture
 def mock_db():
@@ -76,8 +77,6 @@ def test_delete_report_service_non_admin_authorized(mock_db):
             assert response.user_message == f"Report {mock_report_id} deleted successfully."
             assert response.error_status == status.HTTP_200_OK
 
-
-
 def test_delete_report_service_non_admin_not_authorized(mock_db):
     mock_report = MagicMock()
     mock_report.reportid = 1
@@ -90,8 +89,6 @@ def test_delete_report_service_non_admin_not_authorized(mock_db):
         response = AdministrationService.delete_report_service(1, mock_db, mock_user_role, mock_user_id)
         assert response.user_message == "You are not authorized to delete this report"
         assert response.error_status == status.HTTP_403_FORBIDDEN
-
-from schemas.Administration import ReportResponseSchema  # Gerekli modeli içeri aktarın
 
 def test_get_all_reports_admin(mock_db):
     mock_user_role = True 
