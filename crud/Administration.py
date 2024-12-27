@@ -68,19 +68,24 @@ class BlacklistCRUD:
                 ban_date=date.today(),
                 ban_reason=ban_reason
         )
-        BlacklistCRUD.create_blacklist(db, blacklist_entry)
+        response = BlacklistCRUD.create_blacklist(db, blacklist_entry)
         AuthCRUD.delete_user(user_id, db)
+        return response
 
 
 
 class ReportCRUD:
     @staticmethod
     def get_reports_by_user(db: Session, current_user_id: int) -> ReportResponse:
+
+        reporter_info = aliased(UserPageInfo)
+        reportee_info = aliased(UserPageInfo)
+    
         report_entries = (
             db.query(
                 Reports.reportid.label("report_id"),
-                Reports.reporter,
-                Reports.reportee,
+                reporter_info.full_name.label("reporter_name"),
+                reportee_info.full_name.label("reportee_name"),
                 Reports.description,
                 Reports.report_date
             )
