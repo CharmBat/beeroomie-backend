@@ -78,34 +78,26 @@ def test_get_reports_by_user():
 
 
 def test_create_report():
-    # Mock veritabanı oturumu
     db = MagicMock(spec=Session)
 
-    # Test edilen veriler
     report_data = ReportRequest(reportee=2, description="Spam activity")
 
-    # Mock bir rapor oluşturuluyor
     new_report = MagicMock(spec=Reports)
-    new_report.reportid = None  # Başlangıçta None, veritabanı tarafından atanacak
+    new_report.reportid = None 
     new_report.report_date = date.today()
 
-    # db.add, db.commit, db.refresh mocklanıyor
     db.add.return_value = None
     db.commit.return_value = None
     db.refresh.return_value = None
 
-    # db.add çağrısının, new_report nesnesini eklemesi için mock verisi
     db.add(new_report)
 
-    # db.refresh ile veritabanı modelini güncelleme (otomatik ID'nin atanması)
-    new_report.reportid = 1  # Bu değer test sırasında otomatik olarak atanır
-    db.refresh(new_report)  # Bu, mock nesnesinin güncellenmesini sağlar.
+    new_report.reportid = 1
+    db.refresh(new_report)
 
-    # Fonksiyon çağrısı
     response = ReportCRUD.create_report(db, report_data, 1)
 
-    # Kontroller
-    assert response.report_id == None  # Otomatik olarak atanan ID'yi kontrol et
+    assert response.report_id == None  
     assert response.reporter == 1
     assert response.reportee == 2
     assert response.description == "Spam activity"
