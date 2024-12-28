@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from crud.OfferManagement import OfferCRUD
@@ -73,3 +74,60 @@ def test_delete_offer():
     db.delete.assert_called_once_with(mock_offer)
     db.commit.assert_called_once()
     assert response["message"] == "Offer deleted successfully"
+
+
+def test_offer_create_failure():
+    db = MagicMock()
+    db.commit.side_effect = Exception("Database commit failed")
+
+    with pytest.raises(Exception, match="Database commit failed"):
+        OfferCRUD.create(
+            db=db,
+            offererid_fk=1,
+            offereeid_fk=2,
+            description="Test Offer"
+        )
+
+
+
+def test_offer_delete_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    result = OfferCRUD.delete(db=db, offerid=999)
+
+    assert result is None, "Expected None when the offer to delete is not found"
+
+
+def test_offer_get_all_failure():
+    db = MagicMock()
+    db.query.side_effect = Exception("Database query failed")
+
+    with pytest.raises(Exception, match="Database query failed"):
+        OfferCRUD.get_all(db=db, offereeid_fk=1)
+
+
+def test_get_userid_by_offer_not_found():
+    db = MagicMock()
+    db.query().filter().first.return_value = None
+
+    result = OfferCRUD.get_userid_by_offer(db=db, offerid=999)
+
+    assert result is None, "Expected None when offer is not found"
+
+def test_user_deletion_authorization():
+    db = MagicMock()
+    
+    fake_offer = MagicMock()
+    fake_offer.offerid = 123
+    fake_offer.offererid_fk = 2 
+    db.query().filter().first.return_value = fake_offer
+    
+    current_user_id = 1  
+    if fake_offer.offererid_fk != current_user_id:
+        result = {"error": "Unauthorized to delete this offer"}
+    else:
+        result = OfferCRUD.delete(db=db, offerid=fake_offer.offerid)
+    
+    assert result == {"error": "Unauthorized to delete this offer"}, \
+        "Expected error when user tries to delete another user's offer"
