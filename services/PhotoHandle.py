@@ -5,7 +5,7 @@ import uuid
 from fastapi import UploadFile, File, status
 from config import CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,CLOUDINARY_NAME
 from utils.PhotoHandle import create_response
-
+import re
 
 class PhotoUploadService:
     cloudinary.config(
@@ -55,3 +55,40 @@ class PhotoUploadService:
                 error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 system_message=str(e)
             )
+        
+    @staticmethod
+    def photo_delete_service(url: str):
+        try:
+            # Extract public ID from URL
+            match = re.search(r"(?<=uploads/)[^/.]+", url)
+
+            if match:
+                public_id="uploads/"+match.group()
+                
+                # Delete image from Cloudinary
+                delete_result = cloudinary.uploader.destroy(public_id)
+                if delete_result["result"] == "ok":
+                    return create_response(
+                        user_message="Image deleted successfully",
+                        error_status=status.HTTP_200_OK,
+                        system_message="OK"
+                    )
+                else:
+                    return create_response(
+                        user_message="Failed to delete image",
+                        error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        system_message="Failed to delete image"
+                    )
+            else:
+                return create_response(
+                    user_message="Invalid image URL",
+                    error_status=status.HTTP_400_BAD_REQUEST,
+                    system_message="Invalid image URL"
+                )
+        
+        except Exception as e:
+            return create_response(
+                user_message="Failed to delete image",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e)
+            )    
