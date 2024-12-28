@@ -5,7 +5,7 @@ from crud.OfferManagement import OfferCRUD
 from services.OfferManagement import OfferService
 from schemas.OfferManagement import OfferResponse, OfferResponseListing
 from models.OfferManagement import OfferModel
-from utils.Advertisement import get_user_by_ad
+from crud.Advertisement import AdPageCRUD
 from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 
@@ -15,7 +15,7 @@ def test_create_offer_service():
     adpage_id = 123
     description = "Test offer message"
     userid = 1  
-    with patch('utils.Advertisement.get_user_by_ad', return_value=2):  
+    with patch('crud.Advertisement.AdPageCRUD.get_userid_by_ad', return_value=2):  
         mock_adpage = MagicMock()
         mock_adpage.userid_fk = 2  
         db.query().filter().first = MagicMock(return_value=mock_adpage)
@@ -94,7 +94,7 @@ def test_create_offer_service_failure_adpage_not_found():
 
     db.query().filter().first.return_value = None
 
-    with patch('services.OfferManagement.get_user_by_ad', wraps=lambda db, adpage_id: None):
+    with patch('crud.Advertisement.AdPageCRUD.get_userid_by_ad', wraps=lambda db, adpage_id: None):
         try:
             OfferService.create_offer_service(
                 adpage_id=adpage_id,

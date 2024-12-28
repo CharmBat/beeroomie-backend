@@ -4,7 +4,7 @@ from fastapi_mail import MessageSchema
 from config import MAIL_USERNAME, MAIL_FROM, MAIL_PORT, MAIL_PASSWORD, MAIL_SERVER
 from config import SECRET_KEY, ALGORITHM
 from fastapi_mail import ConnectionConfig, FastMail
-from schemas.Authentication import AuthResponse
+from schemas.Authentication import AuthResponse, MeResponse, UserMe
 import asyncio
 from jose import jwt
 from fastapi import status
@@ -127,3 +127,10 @@ def create_response( user_message: str, error_status: int, system_message: str,a
         system_message=system_message
     )
 
+def create_response_user_me( user_message: str, error_status: int, system_message: str,user: UserMe = None):
+    return MeResponse(
+        user=user,
+        user_message=user_message,
+        error_status=error_status,
+        system_message=system_message
+    )

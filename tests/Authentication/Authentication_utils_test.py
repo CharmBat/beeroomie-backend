@@ -1,15 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from jose import jwt
 from config import SECRET_KEY, ALGORITHM
 from utils.Authentication import get_password_hash, verify_password, create_token, set_and_send_mail, verify_token_email, verify_token_userid
 from fastapi_mail import MessageSchema
 from fastapi import status
 from unittest.mock import patch
-from sqlalchemy.orm import Session
-from models.User import Users
-from schemas.Authentication import UserInDB
-from unittest.mock import MagicMock, patch
-import pytest
 
 class TestAuthenticationUtils:
         def test_verify_password_success(self):

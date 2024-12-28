@@ -34,6 +34,6 @@ def update_user_page_info(userid: int, user_page_info: UserPageInfoSchema, db: S
 def delete_user_page_info(userid: int, db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
     if isinstance(current_user, TokenData):
         if current_user.role == True or current_user.userid == userid:
-            return UserPageInfoService.delete_user_page_info_service(userid, db, current_user.userid)
+            return UserPageInfoService.delete_user_service(userid=userid,db=db)
     else:  
         return current_user
