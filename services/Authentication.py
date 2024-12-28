@@ -8,6 +8,7 @@ from crud.Authentication import AuthCRUD
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
+from models.Administration import Blacklist
 
 
 
@@ -33,6 +34,15 @@ class AuthenticationService:
                 user_message="This email is already registered to the system.",
                 error_status=status.HTTP_409_CONFLICT,
                 system_message="Already registered email"
+            )
+        
+        blacklisted = db.query(Blacklist).filter(Blacklist.e_mail == email).first()
+        if blacklisted:
+            print(f"Attempt to register with a blacklisted email: {email}")
+            return create_response(
+                user_message= "Your email is blacklisted. Registration is not allowed.",
+                error_status= 403,
+                system_message= "Email is blacklisted"
             )
 
         verification_token=create_token(data={"email": email}, KEY=VERIFICATION_KEY)

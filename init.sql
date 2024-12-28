@@ -6,7 +6,8 @@
 -- -> compare
 -- tablolarından o user ile ilişkilendirilmiş satırlar silinir.
 -- Ancak reports ve blacklist tablolarından kullanıcı silinmez.
--- (Kullanıcılar normalde silinmeyecek, banlansa bile Blacklist tablosuna alınacak. Ancak olası bir durum için.)
+
+-- (Kullanıcılar banlanınca user tablosundan kullanıcı silinir. Banlanan kullanıcıların maili blacklist tablosunda tutulur[Bir daha kaydolamamaları için].) 
 
 -- Ad_page tablosundan bir ad silinirse;
 -- -> Favorites
