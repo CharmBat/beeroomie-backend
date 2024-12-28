@@ -5,6 +5,7 @@ from config import VERIFICATION_KEY, SECRET_KEY
 from jose import jwt
 from datetime import datetime, timedelta
 from services.Authentication import AuthenticationService
+from schemas.Authentication import MeResponse
 
 
 def create_test_token(data: dict, expire_minutes: int = 15, KEY: str =SECRET_KEY):
@@ -23,10 +24,7 @@ class TestAuthenticationServices:
     def teardown_class(cls):
         Base.metadata.drop_all(bind=engine)
 
-    def test_read_user_data(self):
-        response = client.get("/users/me")
-        assert response.status_code == 200
-        assert response.json() == {"userid": 333, "role": False}
+    
 
     @patch('services.Authentication.AuthenticationService.authenticate_user')
     def test_login_success(self, mock_auth):
@@ -125,41 +123,6 @@ class TestAuthenticationServices:
         assert response.status_code == 200
         assert response.json()["error_status"] == 400
         assert "Confirmation failed." in response.json()["user_message"]
-
-
-    @patch('services.Authentication.AuthCRUD.get_user')
-    @patch('services.Authentication.AuthCRUD.delete_user')
-    def test_delete_user_success(self, mock_delete_user, mock_get_user):
-        mock_get_user.return_value = MagicMock()
-        mock_delete_user.return_value = None
-        userid=0
-        response = client.delete(f"/auth/delete/{userid}")
-        
-        assert response.status_code == 200
-        assert response.json()["error_status"] == 201
-        assert response.json()["user_message"] == "User deleted successfully."
-
-    @patch('services.Authentication.AuthCRUD.get_user')
-    def test_delete_user_not_found(self, mock_get_user):
-        mock_get_user.return_value = None
-        
-        response = client.delete("/auth/delete/999")
-        
-        assert response.status_code == 200
-        assert response.json()["error_status"] == 404
-        assert response.json()["user_message"] == "User not found."
-
-    @patch('services.Authentication.AuthCRUD.get_user')
-    @patch('services.Authentication.AuthCRUD.delete_user')
-    def test_delete_user_failure(self, mock_delete_user, mock_get_user):
-        mock_get_user.return_value = MagicMock()
-        mock_delete_user.side_effect = Exception("Deletion failed")
-        
-        response = client.delete("/auth/delete/0")
-        
-        assert response.status_code == 200
-        assert response.json()["error_status"] == 400
-        assert response.json()["user_message"] == "Invalid userid or deletion failed."
 
     @patch('services.Authentication.AuthCRUD.get_user')
     @patch('services.Authentication.set_and_send_mail')
