@@ -4,7 +4,8 @@ from fastapi import status
 from utils.UserPageInfo import user_page_info_response
 from services.PhotoHandle import PhotoHandleService
 from crud.Authentication import AuthCRUD
-
+from utils.Authentication import create_response_user_me
+from schemas.Authentication import UserMe
 class UserPageInfoService:
     @staticmethod
     def get_user_page_info_service(userid: int, db):
@@ -121,4 +122,28 @@ class UserPageInfoService:
         except Exception as e:
             print(f"Invalid userid or confirmation failed: {e}")
             return user_page_info_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
-    
+
+    @staticmethod
+    def current_user_service(userid,role,db):
+        try:
+            user_info = UserPageInfoCRUD.get_user_info_by_id(db, userid)
+            
+            if not user_info:
+                return create_response_user_me(
+                    user_message="UserPageInfo not found",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="No record found with the given ID"
+                )
+            user=UserMe(userid=userid,role=role,full_name=user_info.full_name)
+            return create_response_user_me(
+                user_message="UserPageInfo retrieved successfully",
+                error_status=status.HTTP_200_OK,
+                system_message="OK",
+                user=user,
+            )
+        except Exception as e:
+            return create_response_user_me(
+                user_message="Failed to retrieve UserPageInfo",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e)
+            )
