@@ -1,17 +1,17 @@
 from fastapi import Depends,APIRouter
 from db.database import get_db
-from schemas.Authentication import AuthResponse,RegisterRequest,TokenData
+from schemas.Authentication import AuthResponse,RegisterRequest,TokenData,MeResponse
 from services.Authentication import AuthenticationService
 from sqlalchemy.orm import Session
 from fastapi.security import  OAuth2PasswordRequestForm
 from typing import Annotated
-
+from services.UserPageInfo import UserPageInfoService
 
 router = APIRouter(tags=["Authentication"])
 
-@router.get("/users/me", response_model=TokenData)
-async def read_user_data(current_user: TokenData = Depends(AuthenticationService.get_current_user)):
-    return current_user
+@router.get("/users/me", response_model=MeResponse)
+async def read_user_data(current_user: TokenData = Depends(AuthenticationService.get_current_user), db: Session = Depends(get_db)):
+    return UserPageInfoService.current_user_service(current_user.userid,current_user.role,db)
 
 @router.post("/auth/login", response_model=AuthResponse)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
