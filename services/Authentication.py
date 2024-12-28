@@ -8,8 +8,8 @@ from crud.Authentication import AuthCRUD
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES, VERIFICATION_KEY, FRONTEND_URL_PREFIX
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
-
-
+from crud.UserPageInfo import UserPageInfoCRUD
+from services.PhotoHandle import PhotoHandleService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 token_blacklist = set()
@@ -117,18 +117,21 @@ class AuthenticationService:
             system_message=""
         )
 
-    @staticmethod
-    def delete_user_service(userid,db):
-        if not AuthCRUD.get_user(userid,db):
-            return create_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
+    # @staticmethod
+    # def delete_user_service(userid,db):
+    #     if not AuthCRUD.get_user(userid,db):
+    #         return create_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
 
-        try:
-            AuthCRUD.delete_user(userid,db)
-            return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
+    #     try:
+    #         AuthCRUD.delete_user(userid,db)
+    #         deleted_user_info=UserPageInfoCRUD.get_by_userid(userid,db)
+    #         if deleted_user_info.ppurl:
+    #             PhotoHandleService.photo_delete_service(deleted_user_info.ppurl)
+    #         return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
     
-        except Exception as e:
-            print(f"Invalid userid or confirmation failed: {e}")
-            return create_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
+    #     except Exception as e:
+    #         print(f"Invalid userid or confirmation failed: {e}")
+    #         return create_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
     
 
 
