@@ -1,9 +1,9 @@
 from fastapi import APIRouter, File, UploadFile
-from services.PhotoHandle import PhotoUploadService
+from services.PhotoHandle import PhotoHandleService
 
 
-router = APIRouter(tags=["PhotoUpload"])
+router = APIRouter(tags=["PhotoHandle"])
 
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
-    return PhotoUploadService.photo_upload_service(file)
+    return PhotoHandleService.photo_upload_service(file)

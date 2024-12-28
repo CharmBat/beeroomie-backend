@@ -1,7 +1,7 @@
-from schemas.PhotoHandle import PhotoUploadResponse
+from schemas.PhotoHandle import PhotoHandleResponse
 
 def create_response( user_message: str, error_status: int, system_message: str,photoUrl: str = None):
-    return PhotoUploadResponse(
+    return PhotoHandleResponse(
         photoUrl=photoUrl,
         user_message=user_message,
         error_status=error_status,

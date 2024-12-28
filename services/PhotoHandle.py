@@ -7,7 +7,7 @@ from config import CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,CLOUDINARY_NAME
 from utils.PhotoHandle import create_response
 import re
 
-class PhotoUploadService:
+class PhotoHandleService:
     cloudinary.config(
     cloud_name=CLOUDINARY_NAME,
     api_key=CLOUDINARY_API_KEY,
@@ -64,7 +64,7 @@ class PhotoUploadService:
 
             if match:
                 public_id="uploads/"+match.group()
-                
+
                 # Delete image from Cloudinary
                 delete_result = cloudinary.uploader.destroy(public_id)
                 if delete_result["result"] == "ok":
