@@ -1,8 +1,9 @@
 from schemas.OfferManagement import OfferResponse, OfferResponseListing
 from crud.OfferManagement import OfferCRUD
 from fastapi import APIRouter, Depends, HTTPException
-from utils.Advertisement import get_user_by_ad
 from services.Authentication import AuthenticationService
+from crud.Advertisement import AdPageCRUD
+
 class OfferService:
     @staticmethod
     def create_offer_service(adpage_id: int, description: str, db, userid: int):
@@ -10,7 +11,7 @@ class OfferService:
 
             offererid_fk = userid
             
-            offeree_id = get_user_by_ad(db, adpage_id)
+            offeree_id = AdPageCRUD.get_userid_by_ad(db, adpage_id)
             if not offeree_id:
                 raise HTTPException(status_code=404, detail="AdPage not found")
 
