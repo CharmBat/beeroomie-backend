@@ -5,11 +5,8 @@ from config import VERIFICATION_KEY, SECRET_KEY
 from jose import jwt
 from datetime import datetime, timedelta
 from services.Authentication import AuthenticationService
-<<<<<<< HEAD
 from models.Administration import Blacklist
-=======
 from schemas.Authentication import MeResponse
->>>>>>> 95c0da4734634010b2a0c964bd67493c6f8b02c1
 
 
 def create_test_token(data: dict, expire_minutes: int = 15, KEY: str =SECRET_KEY):
