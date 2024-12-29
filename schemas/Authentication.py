@@ -11,8 +11,11 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     userid: Optional[int] = None
     role: Optional[bool] = None
-    # full_name: Optional[str] = None
+    
+class UserMe(TokenData):
+    full_name: Optional[str] = None
     # is_confirmed: bool
+
 
 class UserInDB(BaseModel):
     userid: int
@@ -31,6 +34,12 @@ class AuthResponse(BaseModel):
     user_message: str
     error_status:int
     system_message: str    
+
+class MeResponse(BaseModel):
+    user: UserMe
+    user_message: str
+    error_status:int
+    system_message: str
 
 
 class EmailSchema(MessageSchema):

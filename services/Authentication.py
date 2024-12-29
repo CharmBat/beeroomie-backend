@@ -5,12 +5,17 @@ from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import get_password_hash,create_response,create_token,set_and_send_mail,verify_token_email,verify_password
 from schemas.Authentication import AuthResponse, TokenData
 from crud.Authentication import AuthCRUD
-from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
+from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES, VERIFICATION_KEY, FRONTEND_URL_PREFIX
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
+<<<<<<< HEAD
 from models.Administration import Blacklist
 
 
+=======
+from crud.UserPageInfo import UserPageInfoCRUD
+from services.PhotoHandle import PhotoHandleService
+>>>>>>> 95c0da4734634010b2a0c964bd67493c6f8b02c1
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 token_blacklist = set()
@@ -46,7 +51,7 @@ class AuthenticationService:
             )
 
         verification_token=create_token(data={"email": email}, KEY=VERIFICATION_KEY)
-        verification_url=f"http://localhost:8000/auth/confirm/{verification_token}"
+        verification_url=f"{FRONTEND_URL_PREFIX}/confirm-email/{verification_token}"
         hashed_password = get_password_hash(password)
         AuthCRUD.add_user_to_db(email, hashed_password,db)
         
@@ -127,18 +132,21 @@ class AuthenticationService:
             system_message=""
         )
 
-    @staticmethod
-    def delete_user_service(userid,db):
-        if not AuthCRUD.get_user(userid,db):
-            return create_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
+    # @staticmethod
+    # def delete_user_service(userid,db):
+    #     if not AuthCRUD.get_user(userid,db):
+    #         return create_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
 
-        try:
-            AuthCRUD.delete_user(userid,db)
-            return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
+    #     try:
+    #         AuthCRUD.delete_user(userid,db)
+    #         deleted_user_info=UserPageInfoCRUD.get_by_userid(userid,db)
+    #         if deleted_user_info.ppurl:
+    #             PhotoHandleService.photo_delete_service(deleted_user_info.ppurl)
+    #         return create_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
     
-        except Exception as e:
-            print(f"Invalid userid or confirmation failed: {e}")
-            return create_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
+    #     except Exception as e:
+    #         print(f"Invalid userid or confirmation failed: {e}")
+    #         return create_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
     
 
 
@@ -151,7 +159,7 @@ class AuthenticationService:
                 system_message="User not found."
             )
         reset_token=create_token(data={"email": email}, expires_delta=timedelta(minutes=5),KEY=SECRET_KEY)
-        reset_url=f"http://localhost:8000/auth/change-password/{reset_token}"
+        reset_url=f"{FRONTEND_URL_PREFIX}/reset-password/{reset_token}"
         email_data = MessageSchema(
         subject="Şifre Sıfırlama",
         recipients=[parse_obj_as(EmailStr, email)],  # Note: `recipients` should be a list of email strings
