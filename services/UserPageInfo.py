@@ -61,6 +61,7 @@ class UserPageInfoService:
         try:
             # Doğrulama
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
+            oldppurl=UserPageInfoCRUD.get_ppurl_by_userid(userid,db)
             updated_user_info = UserPageInfoCRUD.update(db, userid, validated_user_info)
             if not updated_user_info:
                 return user_page_info_response(
@@ -69,6 +70,8 @@ class UserPageInfoService:
                     system_message="No record found with the given ID",
                     user_info_list=None,
                 )
+            if oldppurl and oldppurl!=updated_user_info.ppurl:
+                PhotoHandleService.photo_delete_service(oldppurl)
             return user_page_info_response(
                 user_message="UserPageInfo updated successfully",
                 error_status=status.HTTP_200_OK,
