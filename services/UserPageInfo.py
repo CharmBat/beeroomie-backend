@@ -38,23 +38,9 @@ class UserPageInfoService:
     @staticmethod
     def create_user_page_info_service(user_page_info: UserPageInfoSchema, db, user_id):
         try:
-            # Doğrulama
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
             validated_user_info.userid_fk = user_id
             
-            # Eğer profil fotoğrafı varsa yükle
-            if validated_user_info.ppurl:
-                photo_url = PhotoHandleService.photo_upload_service(validated_user_info.ppurl)
-                if photo_url and photo_url.error_status == status.HTTP_201_CREATED:
-                    validated_user_info.ppurl = photo_url.photoUrl
-                else:
-                    return user_page_info_response(
-                        user_message="Failed to upload profile photo",
-                        error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        system_message="Photo upload failed",
-                        user_info_list=None,
-                    )
-
             created_user_info = UserPageInfoCRUD.create(db, validated_user_info)
             return user_page_info_response(
                 user_message=f"UserPageInfo created successfully for user {created_user_info.userid_fk}",
@@ -83,26 +69,11 @@ class UserPageInfoService:
                     user_info_list=None,
                 )
 
-            # Doğrulama
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
             
-            # Eğer yeni bir profil fotoğrafı yükleniyorsa
-            if validated_user_info.ppurl and validated_user_info.ppurl != existing_user_info.ppurl:
-                # Eski fotoğrafı sil
-                if existing_user_info.ppurl:
-                    PhotoHandleService.photo_delete_service(existing_user_info.ppurl)
-                
-                # Yeni fotoğrafı yükle
-                photo_url = PhotoHandleService.photo_upload_service(validated_user_info.ppurl)
-                if photo_url and photo_url.error_status == status.HTTP_201_CREATED:
-                    validated_user_info.ppurl = photo_url.photoUrl
-                else:
-                    return user_page_info_response(
-                        user_message="Failed to upload new profile photo",
-                        error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        system_message="Photo upload failed",
-                        user_info_list=None,
-                    )
+            # Sadece eski fotoğraf varsa ve yeni fotoğraf farklıysa sil
+            if existing_user_info.ppurl and validated_user_info.ppurl != existing_user_info.ppurl:
+                PhotoHandleService.photo_delete_service(existing_user_info.ppurl)
 
             updated_user_info = UserPageInfoCRUD.update(db, userid, validated_user_info)
             return user_page_info_response(
@@ -144,20 +115,37 @@ class UserPageInfoService:
     #             system_message=str(e),
     #         )
     @staticmethod
-    def delete_user_service(userid,db):
-        if not AuthCRUD.get_user(userid,db):
-            return user_page_info_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
-
+    def delete_user_service(userid, db):
         try:
-            AuthCRUD.delete_user(userid,db)
-            deleted_user_info=UserPageInfoCRUD.get_by_userid(userid,db)
-            if deleted_user_info.ppurl:
-                PhotoHandleService.photo_delete_service(deleted_user_info.ppurl)
-            return user_page_info_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
-    
+            # Önce kullanıcı bilgilerini al
+            user_info = UserPageInfoCRUD.get_by_userid(db, userid)
+            if not user_info:
+                return user_page_info_response(
+                    user_message="User not found.",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="User not found."
+                )
+
+            # Profil fotoğrafı varsa sil
+            if user_info.ppurl:
+                PhotoHandleService.photo_delete_service(user_info.ppurl)
+
+            # Kullanıcıyı sil
+            AuthCRUD.delete_user(userid, db)
+            
+            return user_page_info_response(
+                user_message="User deleted successfully.",
+                error_status=status.HTTP_201_CREATED,
+                system_message="User deleted successfully."
+            ) 
+        
         except Exception as e:
-            print(f"Invalid userid or confirmation failed: {e}")
-            return user_page_info_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
+            print(f"Invalid userid or deletion failed: {e}")
+            return user_page_info_response(
+                user_message="Invalid userid or deletion failed.",
+                error_status=status.HTTP_400_BAD_REQUEST,
+                system_message=str(e)
+            )
 
     @staticmethod
     def current_user_service(userid,role,db):

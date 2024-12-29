@@ -75,32 +75,24 @@ class AdvertisementService:
                     system_message="Duplicate title",
                 )
 
-            # Sadece AdPageSchema ile ilgili alanları filtrele
-            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
-            adpage_schema_data["userid"] = userid
-            # AdPageSchema nesnesine dönüştür
-            adpage_schema = AdPageSchema(**adpage_schema_data)
-
-            # Advertisement'ı güncelle
-            updated_adpage = AdPageCRUD.update(db, adpage_id, adpage_schema)
-
             # Eski fotoğrafları sil
             old_photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
             for photo in old_photos:
                 PhotoHandleService.photo_delete_service(photo.photourl)
             PhotosCRUD.delete_photos(db, adpage_id)
 
-            # Yeni fotoğrafları yükle
+            # Advertisement'ı güncelle
+            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
+            adpage_schema_data["userid"] = userid
+            adpage_schema = AdPageSchema(**adpage_schema_data)
+            updated_adpage = AdPageCRUD.update(db, adpage_id, adpage_schema)
+
+            # Yeni fotoğraf URL'lerini kaydet
             if adpage.photos:
-                photo_urls = []
-                for photo in adpage.photos:
-                    photo_url = PhotoHandleService.photo_upload_service(photo)
-                    if photo_url:
-                        photo_urls.append(photo_url)
-                PhotosCRUD.create_photos(db, adpage_id, photo_urls)
+                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
 
             # Ad Utilities güncelle
-            AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)  # Eski utilities'i sil
+            AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)
             if adpage.utilites:
                 AdUtilitiesCRUD.create_ad_utilities(db, adpage_id, adpage.utilites)
 
@@ -139,6 +131,7 @@ class AdvertisementService:
     @staticmethod
     def delete_adpage_service(adpage_id: int, db) -> AdPageResponse:
         try:
+            # İlanı kontrol et
             db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
             if not db_adpage:
                 return create_response_only_message(
@@ -147,7 +140,7 @@ class AdvertisementService:
                     system_message="No record found with the given ID",
                 )
 
-            # İlana ait fotoğrafları bul ve PhotoHandleService ile sil
+            # İlana ait fotoğrafları bul ve sil
             photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
             for photo in photos:
                 PhotoHandleService.photo_delete_service(photo.photourl)
