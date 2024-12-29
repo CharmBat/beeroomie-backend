@@ -31,12 +31,7 @@ class AdvertisementService:
             advertisement = AdPageCRUD.create(db, adpage_schema)
             # Photos ekle
             if adpage.photos:
-                photo_urls = []
-                for photo in adpage.photos:
-                    photo_url = PhotoHandleService.photo_upload_service(photo)
-                    if photo_url:
-                        photo_urls.append(photo_url)
-                PhotosCRUD.create_photos(db, advertisement.adpageid, photo_urls)
+                PhotosCRUD.create_photos(db, advertisement.adpageid, adpage.photos)
             # Ad Utilities ekle
             if adpage.utilites:
                 AdUtilitiesCRUD.create_ad_utilities(db, advertisement.adpageid, adpage.utilites)
