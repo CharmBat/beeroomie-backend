@@ -8,14 +8,7 @@ from crud.Authentication import AuthCRUD
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES, VERIFICATION_KEY, FRONTEND_URL_PREFIX
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
-<<<<<<< HEAD
 from models.Administration import Blacklist
-
-
-=======
-from crud.UserPageInfo import UserPageInfoCRUD
-from services.PhotoHandle import PhotoHandleService
->>>>>>> 95c0da4734634010b2a0c964bd67493c6f8b02c1
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 token_blacklist = set()
