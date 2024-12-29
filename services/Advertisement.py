@@ -70,26 +70,26 @@ class AdvertisementService:
                     system_message="Duplicate title",
                 )
 
-            # Eski fotoğrafları sil
-            old_photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
-            for photo in old_photos:
-                PhotoHandleService.photo_delete_service(photo.photourl)
-            PhotosCRUD.delete_photos(db, adpage_id)
-
             # Advertisement'ı güncelle
             adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
             adpage_schema_data["userid"] = userid
             adpage_schema = AdPageSchema(**adpage_schema_data)
             updated_adpage = AdPageCRUD.update(db, adpage_id, adpage_schema)
 
-            # Yeni fotoğraf URL'lerini kaydet
-            if adpage.photos:
-                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
-
             # Ad Utilities güncelle
             AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)
             if adpage.utilites:
                 AdUtilitiesCRUD.create_ad_utilities(db, adpage_id, adpage.utilites)
+
+            # Eski fotoğrafları sil
+            old_photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
+            for photo in old_photos:
+                PhotoHandleService.photo_delete_service(photo.photourl)
+            PhotosCRUD.delete_photos(db, adpage_id)
+
+            # Yeni fotoğraf URL'lerini kaydet
+            if adpage.photos:
+                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
 
             return create_response_only_message(
                 user_message=f"Advertisement {adpage_id} updated successfully",
