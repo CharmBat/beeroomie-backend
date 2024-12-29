@@ -6,7 +6,8 @@
 -- -> compare
 -- tablolarından o user ile ilişkilendirilmiş satırlar silinir.
 -- Ancak reports ve blacklist tablolarından kullanıcı silinmez.
--- (Kullanıcılar normalde silinmeyecek, banlansa bile Blacklist tablosuna alınacak. Ancak olası bir durum için.)
+
+-- (Kullanıcılar banlanınca user tablosundan kullanıcı silinir. Banlanan kullanıcıların maili blacklist tablosunda tutulur[Bir daha kaydolamamaları için].) 
 
 -- Ad_page tablosundan bir ad silinirse;
 -- -> Favorites
@@ -40,7 +41,7 @@ CREATE TABLE User_page_info (
     ppURL 					TEXT,
     about 					VARCHAR(300),
     contact 				VARCHAR(100),
-    RH 						BOOLEAN DEAULT FALSE,
+    RH 						BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (userID_FK) REFERENCES Users(userID) ON DELETE CASCADE,
     FOREIGN KEY (departmentID_FK) REFERENCES Department(departmentID)
 );

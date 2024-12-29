@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from crud.OfferManagement import OfferCRUD
 from models.OfferManagement import OfferModel
-from models.User import UserPageInfo
 
 def test_create_offer():
     db = MagicMock(spec=Session)

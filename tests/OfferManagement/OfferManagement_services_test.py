@@ -3,9 +3,7 @@ from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from crud.OfferManagement import OfferCRUD
 from services.OfferManagement import OfferService
-from schemas.OfferManagement import OfferResponse, OfferResponseListing
 from models.OfferManagement import OfferModel
-from crud.Advertisement import AdPageCRUD
 from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 

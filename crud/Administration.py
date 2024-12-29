@@ -14,6 +14,13 @@ class BlacklistCRUD:
             .filter(Blacklist.e_mail == e_mail)
             .all()
         )
+        if not blacklist_entries:
+            return BlacklistResponse(
+                blacklist_list=[],
+                user_message="No blacklist entry found for the given email",
+                error_status=1,  
+                system_message="No matching records found"
+            )
         response_data = [
             BlacklistBase(
                 e_mail=entry.e_mail,
@@ -116,10 +123,6 @@ class ReportCRUD:
 
     @staticmethod
     def create_report(db: Session, report_data: ReportRequest, current_user_id: int) -> ReportResponseSchema2:
-        """
-        Yeni rapor oluşturma işlemi.
-        'reporter' değeri, parametre olarak alınan current_user_id olacak.
-        """
         new_report = Reports(
             reporter=current_user_id,
             reportee=report_data.reportee,
@@ -140,9 +143,6 @@ class ReportCRUD:
 
     @staticmethod
     def delete_report(db: Session, report_id: int) -> dict:
-        """
-        Verilen report_id'ye ait kaydı doğrudan siler (herhangi bir yetki kontrolü yapmaz).
-        """
         report_entry = db.query(Reports).filter(Reports.reportid == report_id).first()
         if not report_entry:
             return {"message": "Report not found"}
@@ -152,7 +152,6 @@ class ReportCRUD:
     
     @staticmethod
     def get_all(db: Session):
-        # Aliases for UserPageInfo
         reporter_info = aliased(UserPageInfo)
         reportee_info = aliased(UserPageInfo)
 
