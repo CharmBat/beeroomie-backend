@@ -212,6 +212,10 @@ class AdPageCRUD:
         db.commit()
         return {"message": "Advertisement deleted successfully"}
 
+    @staticmethod
+    def get_by_title(db, title: str):
+        return db.query(AdPage).filter(AdPage.title == title).first()
+
 class PhotosCRUD:
     @staticmethod
     def create_photos(db: Session, adpage_id: int, photo_urls: list[str]):
