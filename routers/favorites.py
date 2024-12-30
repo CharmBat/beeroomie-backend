@@ -19,7 +19,7 @@ def get_user_favorites(pagination: int = 0, db: Session = Depends(get_db),
     else:
         return current_user
 
-@router.post("/")
+@router.post("/", response_model=AdPageResponse)
 def add_to_favorites(
     adpage_id: int, 
     db: Session = Depends(get_db), 
@@ -30,7 +30,7 @@ def add_to_favorites(
         return current_user
     
 
-@router.delete("/")
+@router.delete("/", response_model=AdPageResponse)
 def remove_from_favorites(
     adpage_id: int, 
     db: Session = Depends(get_db), 

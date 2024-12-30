@@ -32,7 +32,7 @@ class ReportRequest(BaseModel):
 
 
 class ReportResponseSchema2(BaseModel):
-    report_id: int
+    report_id: Optional[int]
     reporter: int
     reportee: int
     description: str

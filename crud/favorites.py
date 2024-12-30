@@ -58,6 +58,8 @@ class favoritesCRUD:
 
         return list(adpage_dict.values()), total_count
     
+    
+    
 
     @staticmethod
     def add_to_favorites(db: Session, user_id: int, adpage_id: int):

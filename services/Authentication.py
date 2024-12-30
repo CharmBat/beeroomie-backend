@@ -5,11 +5,10 @@ from fastapi.security import OAuth2PasswordBearer
 from utils.Authentication import get_password_hash,create_response,create_token,set_and_send_mail,verify_token_email,verify_password
 from schemas.Authentication import AuthResponse, TokenData
 from crud.Authentication import AuthCRUD
-from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES,VERIFICATION_KEY
+from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES, VERIFICATION_KEY, FRONTEND_URL_PREFIX
 from fastapi_mail import MessageSchema
 from pydantic import EmailStr, parse_obj_as
-from crud.UserPageInfo import UserPageInfoCRUD
-from services.PhotoHandle import PhotoHandleService
+from models.Administration import Blacklist
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 token_blacklist = set()
@@ -34,9 +33,18 @@ class AuthenticationService:
                 error_status=status.HTTP_409_CONFLICT,
                 system_message="Already registered email"
             )
+        
+        blacklisted = db.query(Blacklist).filter(Blacklist.e_mail == email).first()
+        if blacklisted:
+            print(f"Attempt to register with a blacklisted email: {email}")
+            return create_response(
+                user_message= "Your email is blacklisted. Registration is not allowed.",
+                error_status= 403,
+                system_message= "Email is blacklisted"
+            )
 
         verification_token=create_token(data={"email": email}, KEY=VERIFICATION_KEY)
-        verification_url=f"http://localhost:8000/auth/confirm/{verification_token}"
+        verification_url=f"{FRONTEND_URL_PREFIX}/confirm-email/{verification_token}"
         hashed_password = get_password_hash(password)
         AuthCRUD.add_user_to_db(email, hashed_password,db)
         
@@ -144,7 +152,7 @@ class AuthenticationService:
                 system_message="User not found."
             )
         reset_token=create_token(data={"email": email}, expires_delta=timedelta(minutes=5),KEY=SECRET_KEY)
-        reset_url=f"http://localhost:8000/auth/change-password/{reset_token}"
+        reset_url=f"{FRONTEND_URL_PREFIX}/reset-password/{reset_token}"
         email_data = MessageSchema(
         subject="Şifre Sıfırlama",
         recipients=[parse_obj_as(EmailStr, email)],  # Note: `recipients` should be a list of email strings
