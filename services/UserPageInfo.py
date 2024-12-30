@@ -6,6 +6,7 @@ from services.PhotoHandle import PhotoHandleService
 from crud.Authentication import AuthCRUD
 from utils.Authentication import create_response_user_me
 from schemas.Authentication import UserMe
+from models.Advertisement import AdPage, Photos
 class UserPageInfoService:
     @staticmethod
     def get_user_page_info_service(userid: int, db):
@@ -118,7 +119,7 @@ class UserPageInfoService:
     @staticmethod
     def delete_user_service(userid, db):
         try:
-            # Önce kullanıcı bilgilerini al
+            # Get user info
             user_info = UserPageInfoCRUD.get_by_userid(db, userid)
             if not user_info:
                 return user_page_info_response(
@@ -127,11 +128,23 @@ class UserPageInfoService:
                     system_message="User not found."
                 )
 
-            # Profil fotoğrafı varsa sil
+            # If user is a housie (rh=True), delete their advertisement photos
+            if user_info.rh:
+                # Get user's advertisement
+                advertisement = db.query(AdPage).filter(AdPage.userid_fk == userid).first()
+                if advertisement:
+                    # Get all photos for this advertisement
+                    photos = db.query(Photos).filter(Photos.adpageid_fk == advertisement.adpageid).all()
+                    # Delete each photo from Cloudinary
+                    for photo in photos:
+                        if photo.photourl:
+                            PhotoHandleService.photo_delete_service(photo.photourl)
+
+            # Delete profile picture if exists
             if user_info.ppurl:
                 PhotoHandleService.photo_delete_service(user_info.ppurl)
 
-            # Kullanıcıyı sil
+            # Delete user
             AuthCRUD.delete_user(userid, db)
             
             return user_page_info_response(

@@ -70,7 +70,8 @@ class UserPageInfoCRUD:
     @staticmethod
     def get_ppurl_by_userid(db: Session, userid: int):
         """Fetches the profile picture URL by user ID."""
-        return db.query(UserPageInfo.ppurl).filter(UserPageInfo.userid_fk == userid).first
+        result = db.query(UserPageInfo.ppurl).filter(UserPageInfo.userid_fk == userid).first()
+        return result.ppurl if result else None
 
     @staticmethod
     def update(db: Session, userid: int, user_page_info: UserPageInfoSchema):

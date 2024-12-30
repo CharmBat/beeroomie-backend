@@ -4,15 +4,21 @@ from fastapi import status
 from utils.Advertisement import create_response_ads_listing,create_response_only_message
 from services.PhotoHandle import PhotoHandleService
 from crud.UserPageInfo import UserPageInfoCRUD
-
-class AdvertisementService:
-
- from crud.Advertisement import PhotosCRUD, AdUtilitiesCRUD
+from models.Advertisement import AdPage
 
 class AdvertisementService:
     @staticmethod
     def create_adpage_service(adpage: AdPageRequest, db, user_id: int):
         try:
+            # Check if user already has an advertisement
+            existing_user_ad = db.query(AdPage).filter(AdPage.userid_fk == user_id).first()
+            if existing_user_ad:
+                return create_response_only_message(
+                    user_message="You already have an active advertisement. Please delete your existing advertisement before creating a new one.",
+                    error_status=status.HTTP_400_BAD_REQUEST,
+                    system_message="User already has an advertisement",
+                )
+
             # Aynı başlıkta ilan var mı kontrol et
             existing_ad = AdPageCRUD.get_by_title(db, adpage.title)
             if existing_ad:
