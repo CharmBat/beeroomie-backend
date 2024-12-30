@@ -37,7 +37,7 @@ class AuthResponse(BaseModel):
     system_message: str    
 
 class MeResponse(BaseModel):
-    user: UserMe
+    user: Optional[UserMe] = None
     user_message: str
     error_status:int
     system_message: str
