@@ -6,6 +6,7 @@ from services.PhotoHandle import PhotoHandleService
 from crud.Authentication import AuthCRUD
 from utils.Authentication import create_response_user_me
 from schemas.Authentication import UserMe
+from models.Advertisement import AdPage, Photos
 class UserPageInfoService:
     @staticmethod
     def get_user_page_info_service(userid: int, db):
@@ -36,11 +37,11 @@ class UserPageInfoService:
             )
 
     @staticmethod
-    def create_user_page_info_service(user_page_info: UserPageInfoSchema, db,user_id):
+    def create_user_page_info_service(user_page_info: UserPageInfoSchema, db, user_id):
         try:
-            # Doğrulama
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
             validated_user_info.userid_fk = user_id
+            
             created_user_info = UserPageInfoCRUD.create(db, validated_user_info)
             return user_page_info_response(
                 user_message=f"UserPageInfo created successfully for user {created_user_info.userid_fk}",
@@ -59,19 +60,24 @@ class UserPageInfoService:
     @staticmethod
     def update_user_page_info_service(userid: int, user_page_info: UserPageInfoSchema, db):
         try:
-            # Doğrulama
-            validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
-            oldppurl=UserPageInfoCRUD.get_ppurl_by_userid(userid,db)
-            updated_user_info = UserPageInfoCRUD.update(db, userid, validated_user_info)
-            if not updated_user_info:
+            # Mevcut kullanıcı bilgilerini al
+            existing_user_info = UserPageInfoCRUD.get_by_userid(db, userid)
+            if not existing_user_info:
                 return user_page_info_response(
                     user_message="UserPageInfo not found",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID",
                     user_info_list=None,
                 )
-            if oldppurl and oldppurl!=updated_user_info.ppurl:
-                PhotoHandleService.photo_delete_service(oldppurl)
+              
+            validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
+            
+            # Sadece eski fotoğraf varsa ve yeni fotoğraf farklıysa sil
+            if existing_user_info.ppurl and validated_user_info.ppurl != existing_user_info.ppurl:
+                PhotoHandleService.photo_delete_service(existing_user_info.ppurl)
+
+            updated_user_info = UserPageInfoCRUD.update(db, userid, validated_user_info)
+                
             return user_page_info_response(
                 user_message="UserPageInfo updated successfully",
                 error_status=status.HTTP_200_OK,
@@ -111,20 +117,49 @@ class UserPageInfoService:
     #             system_message=str(e),
     #         )
     @staticmethod
-    def delete_user_service(userid,db):
-        if not AuthCRUD.get_user(userid,db):
-            return user_page_info_response(user_message="User not found.",error_status=status.HTTP_404_NOT_FOUND,system_message="User not found.")
-
+    def delete_user_service(userid, db):
         try:
-            AuthCRUD.delete_user(userid,db)
-            deleted_user_info=UserPageInfoCRUD.get_by_userid(userid,db)
-            if deleted_user_info.ppurl:
-                PhotoHandleService.photo_delete_service(deleted_user_info.ppurl)
-            return user_page_info_response(user_message="User deleted successfully.",error_status=status.HTTP_201_CREATED,system_message="User deleted successfully.") 
-    
+            # Get user info
+            user_info = UserPageInfoCRUD.get_by_userid(db, userid)
+            if not user_info:
+                return user_page_info_response(
+                    user_message="User not found.",
+                    error_status=status.HTTP_404_NOT_FOUND,
+                    system_message="User not found."
+                )
+
+            # If user is a housie (rh=True), delete their advertisement photos
+            if user_info.rh:
+                # Get user's advertisement
+                advertisement = db.query(AdPage).filter(AdPage.userid_fk == userid).first()
+                if advertisement:
+                    # Get all photos for this advertisement
+                    photos = db.query(Photos).filter(Photos.adpageid_fk == advertisement.adpageid).all()
+                    # Delete each photo from Cloudinary
+                    for photo in photos:
+                        if photo.photourl:
+                            PhotoHandleService.photo_delete_service(photo.photourl)
+
+            # Delete profile picture if exists
+            if user_info.ppurl:
+                PhotoHandleService.photo_delete_service(user_info.ppurl)
+
+            # Delete user
+            AuthCRUD.delete_user(userid, db)
+            
+            return user_page_info_response(
+                user_message="User deleted successfully.",
+                error_status=status.HTTP_201_CREATED,
+                system_message="User deleted successfully."
+            ) 
+        
         except Exception as e:
-            print(f"Invalid userid or confirmation failed: {e}")
-            return user_page_info_response(user_message="Invalid userid or deletion failed.",error_status=status.HTTP_400_BAD_REQUEST,system_message="Invalid userid or deletion failed.") 
+            print(f"Invalid userid or deletion failed: {e}")
+            return user_page_info_response(
+                user_message="Invalid userid or deletion failed.",
+                error_status=status.HTTP_400_BAD_REQUEST,
+                system_message=str(e)
+            )
 
     @staticmethod
     def current_user_service(userid,role,db):
