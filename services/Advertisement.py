@@ -2,16 +2,32 @@ from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, A
 from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
 from fastapi import status
 from utils.Advertisement import create_response_ads_listing,create_response_only_message
+from services.PhotoHandle import PhotoHandleService
 from crud.UserPageInfo import UserPageInfoCRUD
-
-class AdvertisementService:
-
- from crud.Advertisement import PhotosCRUD, AdUtilitiesCRUD
+from models.Advertisement import AdPage
 
 class AdvertisementService:
     @staticmethod
     def create_adpage_service(adpage: AdPageRequest, db, user_id: int):
         try:
+            # Check if user already has an advertisement
+            existing_user_ad = db.query(AdPage).filter(AdPage.userid_fk == user_id).first()
+            if existing_user_ad:
+                return create_response_only_message(
+                    user_message="You already have an active advertisement. Please delete your existing advertisement before creating a new one.",
+                    error_status=status.HTTP_400_BAD_REQUEST,
+                    system_message="User already has an advertisement",
+                )
+
+            # Aynı başlıkta ilan var mı kontrol et
+            existing_ad = AdPageCRUD.get_by_title(db, adpage.title)
+            if existing_ad:
+                return create_response_only_message(
+                    user_message="An advertisement with this title already exists",
+                    error_status=status.HTTP_400_BAD_REQUEST,
+                    system_message="Duplicate title",
+                )
+
             # Sadece AdPageSchema ile ilgili alanları filtrele
             adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
             adpage_schema_data["userid"] = user_id
@@ -56,24 +72,35 @@ class AdvertisementService:
                     system_message="No record found with the given ID",
                 )
 
-            # Sadece AdPageSchema ile ilgili alanları filtrele
-            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
-            adpage_schema_data["userid"] = userid
-            # AdPageSchema nesnesine dönüştür
-            adpage_schema = AdPageSchema(**adpage_schema_data)
+            # Aynı başlıkta başka bir ilan var mı kontrol et
+            existing_ad = AdPageCRUD.get_by_title(db, adpage.title)
+            if existing_ad and existing_ad.adpageid != adpage_id:
+                return create_response_only_message(
+                    user_message="An advertisement with this title already exists",
+                    error_status=status.HTTP_400_BAD_REQUEST,
+                    system_message="Duplicate title",
+                )
 
             # Advertisement'ı güncelle
+            adpage_schema_data = adpage.model_dump(exclude={"photos", "utilites"})
+            adpage_schema_data["userid"] = userid
+            adpage_schema = AdPageSchema(**adpage_schema_data)
             updated_adpage = AdPageCRUD.update(db, adpage_id, adpage_schema)
 
-            # Photos güncelle
-            PhotosCRUD.delete_photos(db, adpage_id)  # Eski fotoğrafları sil
-            if adpage.photos:
-                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
-
             # Ad Utilities güncelle
-            AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)  # Eski utilities'i sil
+            AdUtilitiesCRUD.delete_ad_utilities(db, adpage_id)
             if adpage.utilites:
                 AdUtilitiesCRUD.create_ad_utilities(db, adpage_id, adpage.utilites)
+
+            # Eski fotoğrafları sil
+            old_photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
+            for photo in old_photos:
+                PhotoHandleService.photo_delete_service(photo.photourl)
+            PhotosCRUD.delete_photos(db, adpage_id)
+
+            # Yeni fotoğraf URL'lerini kaydet
+            if adpage.photos:
+                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
 
             return create_response_only_message(
                 user_message=f"Advertisement {adpage_id} updated successfully",
@@ -110,6 +137,7 @@ class AdvertisementService:
     @staticmethod
     def delete_adpage_service(adpage_id: int, db) -> AdPageResponse:
         try:
+            # İlanı kontrol et
             db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
             if not db_adpage:
                 return create_response_only_message(
@@ -118,12 +146,19 @@ class AdvertisementService:
                     system_message="No record found with the given ID",
                 )
 
+            # İlana ait fotoğrafları bul ve sil
+            photos = PhotosCRUD.get_photos_by_adpage_id(db, adpage_id)
+            for photo in photos:
+                PhotoHandleService.photo_delete_service(photo.photourl)
+
+            # İlanı sil (cascade ile diğer veriler otomatik silinecek)
             adv_owner= AdPageCRUD.get_userid_by_ad(db,adpage_id)
             UserPageInfoCRUD.set_rh_status(db,adv_owner,False)#0 means roomie
 
             AdPageCRUD.delete(db, adpage_id)
+
             return create_response_only_message(
-                user_message=f"Advertisement {adpage_id} deleted successfully",
+                user_message=f"Advertisement {adpage_id} and all related data deleted successfully",
                 error_status=status.HTTP_200_OK,
                 system_message="OK",
             )
