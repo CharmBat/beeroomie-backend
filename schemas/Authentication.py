@@ -14,7 +14,8 @@ class TokenData(BaseModel):
     
 class UserMe(TokenData):
     full_name: Optional[str] = None
-    # is_confirmed: bool
+    rh: Optional[bool] = None # roomie 0 housie 1
+    ppurl: Optional[str] = None
 
 
 class UserInDB(BaseModel):

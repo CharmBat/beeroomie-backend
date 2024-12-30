@@ -2,6 +2,7 @@ from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, A
 from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
 from fastapi import status
 from utils.Advertisement import create_response_ads_listing,create_response_only_message
+from crud.UserPageInfo import UserPageInfoCRUD
 
 class AdvertisementService:
 
@@ -19,6 +20,10 @@ class AdvertisementService:
 
             # Advertisement oluştur
             advertisement = AdPageCRUD.create(db, adpage_schema)
+
+            #Set RH status
+            UserPageInfoCRUD.set_rh_status(db,user_id,True)#1 means housie
+
             # Photos ekle
             if adpage.photos:
                 PhotosCRUD.create_photos(db, advertisement.adpageid, adpage.photos)
@@ -112,6 +117,9 @@ class AdvertisementService:
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID",
                 )
+
+            adv_owner= AdPageCRUD.get_userid_by_ad(db,adpage_id)
+            UserPageInfoCRUD.set_rh_status(db,adv_owner,False)#0 means roomie
 
             AdPageCRUD.delete(db, adpage_id)
             return create_response_only_message(

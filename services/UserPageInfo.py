@@ -137,7 +137,7 @@ class UserPageInfoService:
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID"
                 )
-            user=UserMe(userid=userid,role=role,full_name=user_info.full_name)
+            user=UserMe(userid=userid,role=role,full_name=user_info.full_name,rh=user_info.rh,ppurl=user_info.ppurl)#is confirmed not authenticaed is_profile_complete not found
             return create_response_user_me(
                 user_message="UserPageInfo retrieved successfully",
                 error_status=status.HTTP_200_OK,

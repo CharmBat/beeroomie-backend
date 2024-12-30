@@ -95,3 +95,13 @@ class UserPageInfoCRUD:
     #     db.delete(db_user_info)
     #     db.commit()
     #     return db_user_info
+
+    @staticmethod
+    def set_rh_status(db: Session, userid: int, rh: bool):
+        db_user_info = db.query(UserPageInfo).filter(UserPageInfo.userid_fk == userid).first()
+        if not db_user_info:
+            return None
+        db_user_info.rh = rh
+        db.commit()
+        db.refresh(db_user_info)
+        return db_user_info
