@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models.Advertisement import AdPage,Photos,AdUtilities, Neighborhood, NumberOfRoom, District, Utilities
-from models.User import UserPageInfo
+from models.User import UserPageInfo, Department
 from schemas.Advertisement import AdPageSchema,AdListingResponseSchema, AdPageResponseSchema
 
 
@@ -248,10 +248,40 @@ class AdUtilitiesCRUD:
         db.commit()
 
 
-
-
-
-
     @staticmethod
     def get_all_utilities(db: Session):
         return db.query(Utilities).all()
+    
+
+
+
+
+class AdDepartmentCRUD:
+    @staticmethod
+    def get_all_departments(db: Session):
+        return db.query(Department).all()
+    
+
+
+class AdNeighborhoodCRUD:
+    @staticmethod
+    def get_all_neighborhoods(db: Session):
+        return db.query(Neighborhood).all()
+    
+
+class AdDistrictCRUD:
+    @staticmethod
+    def get_all_districts(db: Session):
+        return db.query(District).all()
+    
+
+class AdNeighborhoodCRUD:
+    @staticmethod
+    def get_neighborhoods_by_district(db: Session, district_id: int):
+        return db.query(Neighborhood).filter(Neighborhood.districtid_fk == district_id).all()
+    
+class AdNumberOfRoomCRUD:
+    @staticmethod
+    def get_all_rooms(db: Session):
+        return db.query(NumberOfRoom).all()
+

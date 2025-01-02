@@ -75,6 +75,9 @@ class AdPageResponse(BaseModel):
 
 
 
+
+
+
 class UtilityResponseSchema(BaseModel):
     utilityid: int
     utility_name: str
@@ -84,3 +87,45 @@ class UtilityListResponse(BaseModel):
     system_message: str
     utilities: List[UtilityResponseSchema] 
 
+
+
+
+class DepartmentResponseSchema(BaseModel):
+    departmentid: int
+    department_name: str
+
+class DepartmentListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    departments: List[DepartmentResponseSchema]
+
+
+class NeighborhoodResponseSchema(BaseModel):
+    neighborhoodid: int
+    neighborhood_name: str
+
+class NeighborhoodListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    neighborhoods: List[NeighborhoodResponseSchema]
+
+
+
+class DistrictResponseSchema(BaseModel):
+    districtid: int
+    district_name: str
+
+class DistrictListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    districts: List[DistrictResponseSchema]
+
+
+class NumberOfRoomResponseSchema(BaseModel):
+    n_roomid: int
+    n_room: str
+
+class NumberOfRoomListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    rooms: List[NumberOfRoomResponseSchema]

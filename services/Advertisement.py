@@ -1,5 +1,6 @@
-from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, AdPageResponseSchema,AdPageFilterSchema, UtilityListResponse, UtilityResponseSchema
-from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, AdPageResponseSchema,AdPageFilterSchema, UtilityListResponse, UtilityResponseSchema, DepartmentListResponse, DepartmentResponseSchema
+from schemas.Advertisement import DistrictListResponse, DistrictResponseSchema, NeighborhoodListResponse, NeighborhoodResponseSchema, NumberOfRoomListResponse, NumberOfRoomResponseSchema
+from crud.Advertisement import AdDepartmentCRUD, AdPageCRUD,PhotosCRUD, AdUtilitiesCRUD, AdDistrictCRUD, AdNeighborhoodCRUD, AdNumberOfRoomCRUD
 from fastapi import status
 from utils.Advertisement import create_response_ads_listing,create_response_only_message
 from services.PhotoHandle import PhotoHandleService
@@ -226,7 +227,6 @@ class AdvertisementService:
     @staticmethod
     def get_utility_service(db) -> UtilityListResponse:
         try:
-            # Tüm utilities verilerini çek
             utilities = AdUtilitiesCRUD.get_all_utilities(db)
 
             if not utilities:
@@ -235,8 +235,6 @@ class AdvertisementService:
                     system_message="No utilities available in the database.",
                     utilities=[]
                 )
-
-            # Verileri listeye dönüştür
             utilities_list = [
                 UtilityResponseSchema(
                     utilityid=utility.utilityid,
@@ -256,3 +254,140 @@ class AdvertisementService:
                 system_message=str(e),
                 utilities=[]
             )
+
+
+
+
+
+    @staticmethod
+    def get_department_service(db) -> DepartmentListResponse:
+        try:
+            departments = AdDepartmentCRUD.get_all_departments(db)
+
+            if not departments:
+                return DepartmentListResponse(
+                    user_message="No departments found.",
+                    system_message="No departments available in the database.",
+                    departments=[]
+                )
+
+            department_list = [
+                DepartmentResponseSchema(
+                    departmentid=department.departmentid,
+                    department_name=department.department_name
+                )
+                for department in departments
+            ]
+
+            return DepartmentListResponse(
+                user_message="Departments fetched successfully.",
+                system_message="OK",
+                departments=department_list
+            )
+        except Exception as e:
+            return DepartmentListResponse(
+                user_message="Failed to fetch departments.",
+                system_message=str(e),
+                departments=[]
+            )
+        
+    
+    @staticmethod
+    def get_district_service(db) -> DistrictListResponse:
+        try:
+            districts = AdDistrictCRUD.get_all_districts(db)
+
+            if not districts:
+                return DistrictListResponse(
+                    user_message="No districts found.",
+                    system_message="No districts available in the database.",
+                    districts=[]
+                )
+
+            district_list = [
+                DistrictResponseSchema(
+                    districtid=district.districtid,
+                    district_name=district.district_name
+                )
+                for district in districts
+            ]
+
+            return DistrictListResponse(
+                user_message="Districts fetched successfully.",
+                system_message="OK",
+                districts=district_list
+            )
+        except Exception as e:
+            return DistrictListResponse(
+                user_message="Failed to fetch districts.",
+                system_message=str(e),
+                districts=[]
+            )
+        
+
+
+    @staticmethod
+    def get_neighborhoods_by_district_service(db, district_id: int) -> NeighborhoodListResponse:
+        try:
+            neighborhoods = AdNeighborhoodCRUD.get_neighborhoods_by_district(db, district_id)
+
+            if not neighborhoods:
+                return NeighborhoodListResponse(
+                    user_message=f"No neighborhoods found for district_id {district_id}.",
+                    system_message="No neighborhoods available for the given district.",
+                    neighborhoods=[]
+                )
+
+            neighborhood_list = [
+                NeighborhoodResponseSchema(
+                    neighborhoodid=neighborhood.neighborhoodid,
+                    neighborhood_name=neighborhood.neighborhood_name
+                )
+                for neighborhood in neighborhoods
+            ]
+
+            return NeighborhoodListResponse(
+                user_message="Neighborhoods fetched successfully.",
+                system_message="OK",
+                neighborhoods=neighborhood_list
+            )
+        except Exception as e:
+            return NeighborhoodListResponse(
+                user_message="Failed to fetch neighborhoods.",
+                system_message=str(e),
+                neighborhoods=[]
+            )
+        
+
+    @staticmethod
+    def get_all_rooms_service(db) -> NumberOfRoomListResponse:
+        try:
+            rooms = AdNumberOfRoomCRUD.get_all_rooms(db)
+
+            if not rooms:
+                return NumberOfRoomListResponse(
+                    user_message="No rooms found.",
+                    system_message="No rooms available in the database.",
+                    rooms=[]
+                )
+
+            room_list = [
+                NumberOfRoomResponseSchema(
+                    n_roomid=room.n_roomid,
+                    n_room=room.n_room
+                )
+                for room in rooms
+            ]
+
+            return NumberOfRoomListResponse(
+                user_message="Rooms fetched successfully.",
+                system_message="OK",
+                rooms=room_list
+            )
+        except Exception as e:
+            return NumberOfRoomListResponse(
+                user_message="Failed to fetch rooms.",
+                system_message=str(e),
+                rooms=[]
+            )
+
