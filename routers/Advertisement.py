@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema, AdPageRequest, AdPageResponse, AdPageFilterSchema
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageFilterSchema, AdPageRequest, AdPageResponse, AdPageFilterSchema, UtilityListResponse
 from services.Advertisement import AdvertisementService
 from db.database import get_db
 from sqlalchemy.orm import Session
@@ -49,7 +49,24 @@ async def get_advertisement(adpage_id: int, db: Session = Depends(get_db), curre
     if isinstance(current_user, TokenData):
         return AdvertisementService.get_ad_details_service(adpage_id, db)
     else:
-        return current_user    
+        return current_user
+    
+
+
+
+
+
+
+
+
+
+
+@router.get("utility", response_model=UtilityListResponse)
+async def get_advertisement_utility(db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
+    if isinstance(current_user, TokenData):
+        return AdvertisementService.get_utility_service(db)
+    else:
+        return current_user
     
 
 

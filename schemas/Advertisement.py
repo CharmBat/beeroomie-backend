@@ -69,5 +69,18 @@ class AdPageResponse(BaseModel):
     advertisement_list: Optional[List[Union[AdPageResponseSchema, AdListingResponseSchema]]] = None
     user_message: str
     error_status:int
-    system_message: str    
+    system_message: str 
+
+
+
+
+
+class UtilityResponseSchema(BaseModel):
+    utilityid: int
+    utility_name: str
+
+class UtilityListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    utilities: List[UtilityResponseSchema] 
 

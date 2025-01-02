@@ -1,4 +1,4 @@
-from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, AdPageResponseSchema,AdPageFilterSchema
+from schemas.Advertisement import AdPageSchema, AdPageResponse, AdPageRequest, AdPageResponseSchema,AdPageFilterSchema, UtilityListResponse, UtilityResponseSchema
 from crud.Advertisement import AdPageCRUD,PhotosCRUD,AdUtilitiesCRUD
 from fastapi import status
 from utils.Advertisement import create_response_ads_listing,create_response_only_message
@@ -220,3 +220,39 @@ class AdvertisementService:
                 advertisement_list=None
             )
 
+
+
+
+    @staticmethod
+    def get_utility_service(db) -> UtilityListResponse:
+        try:
+            # Tüm utilities verilerini çek
+            utilities = AdUtilitiesCRUD.get_all_utilities(db)
+
+            if not utilities:
+                return UtilityListResponse(
+                    user_message="No utilities found.",
+                    system_message="No utilities available in the database.",
+                    utilities=[]
+                )
+
+            # Verileri listeye dönüştür
+            utilities_list = [
+                UtilityResponseSchema(
+                    utilityid=utility.utilityid,
+                    utility_name=utility.utility_name
+                )
+                for utility in utilities
+            ]
+
+            return UtilityListResponse(
+                user_message="Utilities fetched successfully.",
+                system_message="OK",
+                utilities=utilities_list
+            )
+        except Exception as e:
+            return UtilityListResponse(
+                user_message="Failed to fetch utilities.",
+                system_message=str(e),
+                utilities=[]
+            )

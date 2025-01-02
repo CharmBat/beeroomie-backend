@@ -246,3 +246,12 @@ class AdUtilitiesCRUD:
     def delete_ad_utilities(db: Session, adpage_id: int):
         db.query(AdUtilities).filter(AdUtilities.adpageid_fk == adpage_id).delete()
         db.commit()
+
+
+
+
+
+
+    @staticmethod
+    def get_all_utilities(db: Session):
+        return db.query(Utilities).all()
