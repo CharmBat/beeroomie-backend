@@ -25,9 +25,9 @@ def get_user_page_info(userid: int, db: Session = Depends(get_db), current_user 
         return current_user
 
 @router.put("/", response_model=UserPageInfoResponse)
-def update_user_page_info(userid: int, user_page_info: UserPageInfoSchema, db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
+def update_user_page_info(user_page_info: UserPageInfoSchema, db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
     if isinstance(current_user, TokenData):
-        return UserPageInfoService.update_user_page_info_service(userid, user_page_info, db,current_user.userid)
+        return UserPageInfoService.update_user_page_info_service(current_user.userid, user_page_info, db)
     else:
         return current_user
 @router.delete("/{userid}", response_model=UserPageInfoResponse)
