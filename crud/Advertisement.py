@@ -216,6 +216,13 @@ class AdPageCRUD:
     def get_by_title(db, title: str):
         return db.query(AdPage).filter(AdPage.title == title).first()
 
+    @staticmethod
+    def get_ad_id_by_user_id(db: Session, user_id: int):
+        adpage_id_tuple = db.query(AdPage.adpageid).filter(AdPage.userid_fk == user_id).first()
+        adpage_id = adpage_id_tuple[0] if adpage_id_tuple else None
+        print(adpage_id)
+        return adpage_id
+
 class PhotosCRUD:
     @staticmethod
     def create_photos(db: Session, adpage_id: int, photo_urls: list[str]):
@@ -228,6 +235,7 @@ class PhotosCRUD:
     def delete_photos(db: Session, adpage_id: int):
         db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
         db.commit()
+
 
 
 class AdUtilitiesCRUD:

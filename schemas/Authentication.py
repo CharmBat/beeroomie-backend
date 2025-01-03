@@ -13,6 +13,7 @@ class TokenData(BaseModel):
     role: Optional[bool] = None
     
 class UserMe(TokenData):
+    adv_id: Optional[int] = None
     full_name: Optional[str] = None
     rh: Optional[bool] = None # roomie 0 housie 1
     ppurl: Optional[str] = None

@@ -7,6 +7,8 @@ from crud.Authentication import AuthCRUD
 from utils.Authentication import create_response_user_me
 from schemas.Authentication import UserMe
 from models.Advertisement import AdPage, Photos
+from crud.Advertisement import AdPageCRUD
+
 class UserPageInfoService:
     @staticmethod
     def get_user_page_info_service(userid: int, db):
@@ -171,9 +173,16 @@ class UserPageInfoService:
                     user_message="UserPageInfo not found",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID",
-                    user = UserMe(userid=userid,role=None,full_name=None,rh=None,ppurl=None)
+                    user = UserMe(userid=userid,role=None,full_name=None,rh=None,ppurl=None,adv_id=None)
                 )
-            user=UserMe(userid=userid,role=role,full_name=user_info.full_name,rh=user_info.rh,ppurl=user_info.ppurl)#is confirmed not authenticaed is_profile_complete not found
+            
+            rh=user_info.rh            
+            adv_id=None
+
+            if rh==True:
+                adv_id=AdPageCRUD.get_ad_id_by_user_id(db,userid)
+            user=UserMe(userid=userid,role=role,full_name=user_info.full_name,rh=rh,ppurl=user_info.ppurl,adv_id=adv_id)#is confirmed not authenticaed is_profile_complete not found
+            
             return create_response_user_me(
                 user_message="UserPageInfo retrieved successfully",
                 error_status=status.HTTP_200_OK,
