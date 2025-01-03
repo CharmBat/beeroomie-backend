@@ -44,6 +44,7 @@ class AdPageFilterSchema(BaseModel):
     gender_choices: Optional[int] = None
     
 class AdPageResponseSchema(AdPageBase):
+    userid_fk: int
     user_full_name: str
     neighborhood: str
     district: str
