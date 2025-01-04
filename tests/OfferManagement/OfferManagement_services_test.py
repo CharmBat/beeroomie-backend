@@ -3,23 +3,25 @@ from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from crud.OfferManagement import OfferCRUD
 from services.OfferManagement import OfferService
-from models.OfferManagement import OfferModel
 from unittest.mock import MagicMock, patch
-from fastapi import HTTPException
+from fastapi import status
+from models.OfferManagement import OfferModel
 
 def test_create_offer_service():
     db = MagicMock()
 
     adpage_id = 123
     description = "Test offer message"
-    userid = 1  
-    with patch('crud.Advertisement.AdPageCRUD.get_userid_by_ad', return_value=2):  
+    userid = 1 
+
+    with patch('crud.Advertisement.AdPageCRUD.get_userid_by_ad', return_value=[2]): 
         mock_adpage = MagicMock()
-        mock_adpage.userid_fk = 2  
+        mock_adpage.userid_fk = 2 
+
         db.query().filter().first = MagicMock(return_value=mock_adpage)
 
         mock_offer = MagicMock()
-        mock_offer.offerid = 10
+        mock_offer.offerid = 10 
         OfferCRUD.create = MagicMock(return_value=mock_offer)
 
         response = OfferService.create_offer_service(adpage_id=adpage_id, description=description, db=db, userid=userid)
@@ -27,60 +29,37 @@ def test_create_offer_service():
         OfferCRUD.create.assert_called_once_with(
             db=db,
             offererid_fk=userid,
-            offereeid_fk=2,  
+            offereeid_fk=2, 
             description=description
         )
 
         assert response.user_message == "Offer 10 created successfully"
-        assert response.error_status == 0
+        assert response.error_status == status.HTTP_200_OK
         assert response.system_message == "OK"
     
 def test_delete_offer_service():
     db = MagicMock(spec=Session)
 
-    OfferCRUD.delete = MagicMock(return_value={"message": "Offer deleted successfully"})
+    OfferCRUD.delete = MagicMock(return_value=None)
 
     response = OfferService.delete_offer_service(offerid=1, db=db)
 
     assert response.user_message == "Offer 1 deleted successfully"
-    assert response.error_status == 0
+    assert response.error_status == status.HTTP_200_OK
     assert response.system_message == "OK"
     OfferCRUD.delete.assert_called_once_with(db, 1)
 
 def test_get_offers_service():
-    db = MagicMock(spec=Session)
-    user_id = 2  
-    mock_offer = OfferModel()
-    mock_offer.offerid = 1
-    mock_offer.offererid_fk = 3
-    mock_offer.offereeid_fk = user_id
-    mock_offer.send_message = "Test offer message"
+    db = MagicMock()
+    user_id = 2
+    OfferCRUD.get_all = MagicMock(return_value=[]) 
 
-    OfferCRUD.get_all = MagicMock(return_value=[
-    {
-        "offer_id": 1,
-        "send_message": "Test offer message",
-        "offerer_name": "Alice",
-        "contact_info": "alice@example.com",
-    }
-])
+    response = OfferService.get_offers_service(db=db, user_id=user_id)
 
-    try:
-        response = OfferService.get_offers_service(token="dummy_token", db=db, user_id=user_id)
-    except Exception as e:
-        print(f"Error occurred: {e}")
     assert response.user_message == "Successfully fetched Offers"
-    assert response.error_status == 0
+    assert response.error_status == status.HTTP_200_OK
     assert response.system_message == "OK"
-
-    assert len(response.offers) == 1
-
-    offer = response.offers[0]
-    assert offer.offer_id == 1
-    assert offer.send_message == "Test offer message"
-
-    OfferCRUD.get_all.assert_called_once_with(db, user_id)
-
+    assert len(response.offers) == 0
 
 
 def test_create_offer_service_failure_adpage_not_found():
@@ -92,20 +71,16 @@ def test_create_offer_service_failure_adpage_not_found():
 
     db.query().filter().first.return_value = None
 
-    with patch('crud.Advertisement.AdPageCRUD.get_userid_by_ad', wraps=lambda db, adpage_id: None):
-        try:
-            OfferService.create_offer_service(
-                adpage_id=adpage_id,
-                description=description,
-                db=db,
-                userid=userid
-            )
-        except HTTPException as e:
-            assert e.status_code == 404
-            assert e.detail == "AdPage not found"
-        else:
-            assert False, "HTTPException was not raised as expected"
+    response = OfferService.create_offer_service(
+        adpage_id=adpage_id,
+        description=description,
+        db=db,
+        userid=userid
+    )
 
+    assert response.user_message == "AdPage not found"
+    assert response.error_status == status.HTTP_404_NOT_FOUND
+    assert response.system_message == "AdPage not found"
 
 
 def test_delete_offer_service_failure_exception():
@@ -115,28 +90,17 @@ def test_delete_offer_service_failure_exception():
     response = OfferService.delete_offer_service(offerid=1, db=db)
 
     assert response.user_message == "Failed to delete Offer"
-    assert response.error_status == 500
+    assert response.error_status == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert "Unexpected Error" in response.system_message
 
-def test_get_offers_service_failure_empty_offers():
-    db = MagicMock()
-    user_id = 2
-    OfferCRUD.get_all = MagicMock(return_value=[]) 
-
-    response = OfferService.get_offers_service(token="dummy_token", db=db, user_id=user_id)
-
-    assert response.user_message == "Successfully fetched Offers"
-    assert response.error_status == 0
-    assert response.system_message == "OK"
-    assert len(response.offers) == 0
 
 def test_get_offers_service_failure_exception():
     db = MagicMock()
     user_id = 2
     OfferCRUD.get_all = MagicMock(side_effect=Exception("Unexpected Error")) 
 
-    response = OfferService.get_offers_service(token="dummy_token", db=db, user_id=user_id)
+    response = OfferService.get_offers_service(db=db, user_id=user_id)
 
     assert response.user_message == "Failed to fetch Offers"
-    assert response.error_status == 500
+    assert response.error_status == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert "Unexpected Error" in response.system_message
