@@ -1,9 +1,31 @@
 from fastapi import FastAPI
 from routers import Authentication, Advertisement, OfferManagement,UserPageInfo, Administration
 from routers import Authentication, Advertisement, OfferManagement,UserPageInfo, favorites,PhotoHandle
+from fastapi.middleware.cors import CORSMiddleware
+from config import FRONTEND_URL_PREFIX
 
+origins = [
+
+    FRONTEND_URL_PREFIX,
+
+]
 # FastAPI uygulaması oluşturma
 app = FastAPI()
+
+app.add_middleware(
+
+    CORSMiddleware,
+
+    allow_origins=origins,
+
+    allow_credentials=True,
+
+    allow_methods=["*"],
+
+    allow_headers=["*"],
+
+)
+
 
 # Router'ları uygulamaya dahil etme
 app.include_router(Authentication.router)
