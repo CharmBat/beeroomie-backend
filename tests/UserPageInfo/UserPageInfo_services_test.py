@@ -56,8 +56,9 @@ class TestUserPageInfoService:
         # UserPageInfoResponseSchema formatında mock veri oluşturalım
         mock_user_info = UserPageInfoResponseSchema(
             userid_fk=1,
+            departmentid_fk=1,
             full_name="Test User",
-            department_name="Test Department",  # department_name eklendi
+            department_name="Test Department",
             date_of_birth=date(1990, 1, 1),
             gender=True,
             smoking=False,
