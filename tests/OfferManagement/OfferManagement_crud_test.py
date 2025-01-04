@@ -34,22 +34,24 @@ def test_get_all_offers():
     mock_filter = MagicMock()
     mock_join.filter.return_value = mock_filter
 
-    mock_filter.all.return_value = [
-        MagicMock(
-            offer_id=1,
-            send_message="Test offer message",
-            offerer_name="Alice",
-            contact="alice@example.com",
-        )
-    ]
+    mock_result = MagicMock()
+    mock_result.offer_id = 1
+    mock_result.send_message = "Test offer message"
+    mock_result.other_full_name = "Alice"
+    mock_result.other_contact = "alice@example.com"
+    mock_result.other_user_id = 2
+    mock_result.other_ppurl = "http://example.com/ppurl"
+
+    mock_filter.all.return_value = [mock_result]
 
     results = OfferCRUD.get_all(db, offereeid_fk=2)
 
     assert len(results) == 1
-    assert results[0]["offer_id"] == 1
-    assert results[0]["send_message"] == "Test offer message"
-    assert results[0]["offerer_name"] == "Alice"
-    assert results[0]["contact_info"] == "alice@example.com"
+    assert results[0].offer_id == 1
+    assert results[0].send_message == "Test offer message"
+    assert results[0].offerer_name == "Alice"
+    assert results[0].contact_info == "alice@example.com"
+
 
 def test_get_userid_by_offer():
     db = MagicMock(spec=Session)
