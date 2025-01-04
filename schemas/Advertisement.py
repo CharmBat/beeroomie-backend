@@ -44,6 +44,7 @@ class AdPageFilterSchema(BaseModel):
     gender_choices: Optional[int] = None
     
 class AdPageResponseSchema(AdPageBase):
+    userid_fk: int
     user_full_name: str
     neighborhood: str
     district: str
@@ -69,5 +70,63 @@ class AdPageResponse(BaseModel):
     advertisement_list: Optional[List[Union[AdPageResponseSchema, AdListingResponseSchema]]] = None
     user_message: str
     error_status:int
-    system_message: str    
+    system_message: str 
 
+
+
+
+
+
+
+
+class UtilityResponseSchema(BaseModel):
+    utilityid: int
+    utility_name: str
+
+class UtilityListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    utilities: List[UtilityResponseSchema] 
+
+
+
+
+class DepartmentResponseSchema(BaseModel):
+    departmentid: int
+    department_name: str
+
+class DepartmentListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    departments: List[DepartmentResponseSchema]
+
+
+class NeighborhoodResponseSchema(BaseModel):
+    neighborhoodid: int
+    neighborhood_name: str
+
+class NeighborhoodListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    neighborhoods: List[NeighborhoodResponseSchema]
+
+
+
+class DistrictResponseSchema(BaseModel):
+    districtid: int
+    district_name: str
+
+class DistrictListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    districts: List[DistrictResponseSchema]
+
+
+class NumberOfRoomResponseSchema(BaseModel):
+    n_roomid: int
+    n_room: str
+
+class NumberOfRoomListResponse(BaseModel):
+    user_message: str
+    system_message: str
+    rooms: List[NumberOfRoomResponseSchema]

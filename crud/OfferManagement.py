@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models.OfferManagement import OfferModel
 from models.User import UserPageInfo
+from schemas.OfferManagement import Offer
 
 class OfferCRUD:
     @staticmethod
@@ -25,27 +26,54 @@ class OfferCRUD:
         return {"message": "Offer deleted successfully"}
     
     @staticmethod
-    def get_all(db: Session, offereeid_fk: int):
-        query = (
+    def get_all(db: Session, offereeid_fk: int=None,offererid_fk:int=None):
+
+        if offereeid_fk:#houise
+            query = (
             db.query(
                 OfferModel.offerid.label("offer_id"),
                 OfferModel.send_message,
-                UserPageInfo.full_name.label("offerer_name"),
-                UserPageInfo.contact
+                UserPageInfo.full_name.label("other_full_name"),
+                UserPageInfo.contact.label("other_contact"),
+                OfferModel.offererid_fk.label("other_user_id"),
+                UserPageInfo.ppurl.label("other_ppurl")
             )
             .join(UserPageInfo, UserPageInfo.userid_fk == OfferModel.offererid_fk)   
+            .filter(OfferModel.offereeid_fk == offereeid_fk)
         )
-        
+
+        elif offererid_fk:#roomie    
+            query = (
+            db.query(
+                OfferModel.offerid.label("offer_id"),
+                OfferModel.send_message,
+                UserPageInfo.full_name.label("other_full_name"),
+                UserPageInfo.contact.label("other_contact"),
+                OfferModel.offereeid_fk.label("other_user_id"),
+                UserPageInfo.ppurl.label("other_ppurl")
+            )
+            .join(UserPageInfo, UserPageInfo.userid_fk == OfferModel.offereeid_fk)   
+            .filter(OfferModel.offererid_fk == offererid_fk)
+        )
+        else:
+            return None    
         results = query.all()
-        return [
-            {
-                "offer_id": result.offer_id,
-                "send_message": result.send_message,
-                "offerer_name": result.offerer_name,
-                "contact_info": result.contact,
-            }
-            for result in results
-        ]
+        offers = []
+
+        for result in results:
+            offer = Offer(
+            offer_id=result.offer_id,
+            send_message=result.send_message,
+            offerer_name=result.other_full_name,
+            contact_info=result.other_contact,
+            other_user_id=result.other_user_id,
+            ppurl=result.other_ppurl
+            )
+            offers.append(offer)
+        return offers
+
+
+        
         
     @staticmethod
     def get_userid_by_offer(db: Session, offerid: int) -> int:

@@ -5,6 +5,7 @@ from config import VERIFICATION_KEY, SECRET_KEY
 from jose import jwt
 from datetime import datetime, timedelta
 from services.Authentication import AuthenticationService
+from models.Administration import Blacklist
 from schemas.Authentication import MeResponse
 
 
@@ -69,10 +70,12 @@ class TestAuthenticationServices:
         assert response.json()["error_status"] == 401
         assert "Login failed" in response.json()["user_message"]
 
+    @patch('sqlalchemy.orm.Session.query')
     @patch('services.Authentication.AuthCRUD.get_user')
     @patch('services.Authentication.AuthCRUD.add_user_to_db')
     @patch('services.Authentication.set_and_send_mail')
-    def test_register_user(self, mock_mail, mock_add_user, mock_get_user):
+    def test_register_user(self, mock_mail, mock_add_user, mock_get_user, mock_query):
+        mock_query.return_value.filter.return_value.first.return_value = None
         mock_get_user.return_value = None
         mock_mail.return_value = {
             "user_message": "Registration successful",
@@ -248,3 +251,25 @@ class TestAuthenticationServices:
         result = AuthenticationService.authenticate_user("test@itu.edu.tr", "wrongpass", MagicMock())
         
         assert result is False
+
+    @patch('services.Authentication.AuthCRUD.get_user')
+    @patch('services.Authentication.AuthCRUD.add_user_to_db')
+    @patch('services.Authentication.set_and_send_mail')
+    @patch('sqlalchemy.orm.Session.query')  
+    def test_register_user_blacklisted_email(self, mock_query, mock_mail, mock_add_user, mock_get_user):
+        mock_blacklist_entry = MagicMock(e_mail="blacklisted@itu.edu.tr")
+        mock_query.return_value.filter.return_value.first.return_value = mock_blacklist_entry
+        mock_get_user.return_value = None
+    
+        response = client.post(
+            "/auth/register",
+            json={"email": "blacklisted@itu.edu.tr", "password": "password123"}
+        )
+    
+        assert response.status_code == 200
+        assert response.json()["error_status"] == 403
+        assert "Your email is blacklisted" in response.json()["user_message"]
+    
+        mock_add_user.assert_not_called()
+        mock_mail.assert_not_called()
+

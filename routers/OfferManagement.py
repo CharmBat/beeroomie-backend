@@ -26,8 +26,8 @@ async def delete_offer(offerid: int, db: Session =Depends(get_db), current_user 
         return current_user
 
 @router.get("/", response_model=OfferResponse)
-async def get_offers(token: str, db: Session =Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
+async def get_offers(db: Session =Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
     if isinstance(current_user, TokenData):
-        return OfferService.get_offers_service(token, db, current_user.userid)
+        return OfferService.get_offers_service(db=db, user_id=current_user.userid)
     else:
         return current_user

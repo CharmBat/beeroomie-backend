@@ -11,8 +11,10 @@ router = APIRouter(tags=["Authentication"])
 
 @router.get("/users/me", response_model=MeResponse)
 async def read_user_data(current_user: TokenData = Depends(AuthenticationService.get_current_user), db: Session = Depends(get_db)):
-    return UserPageInfoService.current_user_service(current_user.userid,current_user.role,db)
-
+    if isinstance(current_user, TokenData):
+        return UserPageInfoService.current_user_service(current_user.userid,current_user.role,db)
+    else:
+        return current_user
 @router.post("/auth/login", response_model=AuthResponse)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
     return AuthenticationService.login_service(form_data.username, form_data.password,db)

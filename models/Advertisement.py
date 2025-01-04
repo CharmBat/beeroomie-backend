@@ -92,3 +92,6 @@ class Photos(Base):
     ad_page = relationship('AdPage', back_populates='photos')
 
 
+
+
+

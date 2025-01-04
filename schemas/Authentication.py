@@ -13,8 +13,10 @@ class TokenData(BaseModel):
     role: Optional[bool] = None
     
 class UserMe(TokenData):
+    adv_id: Optional[int] = None
     full_name: Optional[str] = None
-    # is_confirmed: bool
+    rh: Optional[bool] = None # roomie 0 housie 1
+    ppurl: Optional[str] = None
 
 
 class UserInDB(BaseModel):
@@ -36,7 +38,7 @@ class AuthResponse(BaseModel):
     system_message: str    
 
 class MeResponse(BaseModel):
-    user: UserMe
+    user: Optional[UserMe] = None
     user_message: str
     error_status:int
     system_message: str

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models.Advertisement import AdPage,Photos,AdUtilities, Neighborhood, NumberOfRoom, District, Utilities
-from models.User import UserPageInfo
+from models.User import UserPageInfo, Department
 from schemas.Advertisement import AdPageSchema,AdListingResponseSchema, AdPageResponseSchema
 
 
@@ -27,6 +27,7 @@ class AdPageCRUD:
                 AdPage.address,
                 AdPage.gender_choices,
                 AdPage.ad_date,
+                AdPage.userid_fk,
                 Neighborhood.neighborhood_name.label("neighborhood"),
                 District.district_name.label("district"),
                 NumberOfRoom.n_room.label("n_room"),
@@ -81,6 +82,7 @@ class AdPageCRUD:
             "user_full_name": query.user_full_name,
             "photos": photo_list,
             "utilities": utility_list,
+            "userid_fk": query.userid_fk,
         }
 
         return AdPageResponseSchema(**ad_data)
@@ -212,6 +214,17 @@ class AdPageCRUD:
         db.commit()
         return {"message": "Advertisement deleted successfully"}
 
+    @staticmethod
+    def get_by_title(db, title: str):
+        return db.query(AdPage).filter(AdPage.title == title).first()
+
+    @staticmethod
+    def get_ad_id_by_user_id(db: Session, user_id: int):
+        adpage_id_tuple = db.query(AdPage.adpageid).filter(AdPage.userid_fk == user_id).first()
+        adpage_id = adpage_id_tuple[0] if adpage_id_tuple else None
+        print(adpage_id)
+        return adpage_id
+
 class PhotosCRUD:
     @staticmethod
     def create_photos(db: Session, adpage_id: int, photo_urls: list[str]):
@@ -224,6 +237,7 @@ class PhotosCRUD:
     def delete_photos(db: Session, adpage_id: int):
         db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
         db.commit()
+
 
 
 class AdUtilitiesCRUD:
@@ -242,3 +256,42 @@ class AdUtilitiesCRUD:
     def delete_ad_utilities(db: Session, adpage_id: int):
         db.query(AdUtilities).filter(AdUtilities.adpageid_fk == adpage_id).delete()
         db.commit()
+
+
+    @staticmethod
+    def get_all_utilities(db: Session):
+        return db.query(Utilities).all()
+    
+
+
+
+
+class AdDepartmentCRUD:
+    @staticmethod
+    def get_all_departments(db: Session):
+        return db.query(Department).all()
+    
+
+
+class AdNeighborhoodCRUD:
+    @staticmethod
+    def get_all_neighborhoods(db: Session):
+        return db.query(Neighborhood).all()
+    
+
+class AdDistrictCRUD:
+    @staticmethod
+    def get_all_districts(db: Session):
+        return db.query(District).all()
+    
+
+class AdNeighborhoodCRUD:
+    @staticmethod
+    def get_neighborhoods_by_district(db: Session, district_id: int):
+        return db.query(Neighborhood).filter(Neighborhood.districtid_fk == district_id).all()
+    
+class AdNumberOfRoomCRUD:
+    @staticmethod
+    def get_all_rooms(db: Session):
+        return db.query(NumberOfRoom).all()
+

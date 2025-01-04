@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List, Union
 from datetime import date
+from pydantic import ConfigDict
 
 # Blacklist Schemas
 class BlacklistBase(BaseModel):
@@ -14,8 +15,7 @@ class BlacklistResponse(BaseModel):
     error_status: int
     system_message: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Report Schemas
@@ -32,14 +32,13 @@ class ReportRequest(BaseModel):
 
 
 class ReportResponseSchema2(BaseModel):
-    report_id: int
+    report_id: Optional[int]
     reporter: int
     reportee: int
     description: str
     report_date: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReportResponseSchema(BaseModel):
     report_id: int
@@ -48,8 +47,7 @@ class ReportResponseSchema(BaseModel):
     description: str
     report_date: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReportResponse(BaseModel):
     report_list: Optional[List[Union[ReportResponseSchema, ReportResponseSchema2]]] = None
@@ -57,5 +55,4 @@ class ReportResponse(BaseModel):
     error_status: int
     system_message: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

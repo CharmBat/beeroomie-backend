@@ -25,6 +25,7 @@ class UserPageInfoCRUD:
                 UserPageInfo.about,
                 UserPageInfo.contact,
                 UserPageInfo.rh,
+                UserPageInfo.departmentid_fk,
                 Department.department_name.label("department_name"),
             )
             .join(Department, UserPageInfo.departmentid_fk == Department.departmentid, isouter=True)
@@ -46,6 +47,7 @@ class UserPageInfoCRUD:
             "about": query.about,
             "contact": query.contact,
             "rh": query.rh,
+            "departmentid_fk": query.departmentid_fk,
             "department_name": query.department_name,
         }
 
@@ -66,6 +68,18 @@ class UserPageInfoCRUD:
     def get_by_userid(db: Session, userid: int):
         """Fetches a UserPageInfo record by user ID."""
         return db.query(UserPageInfo).filter(UserPageInfo.userid_fk == userid).first()
+
+    @staticmethod
+    def get_ppurl_by_userid(db: Session, userid: int):
+        """Fetches the profile picture URL by user ID."""
+        result = db.query(UserPageInfo.ppurl).filter(UserPageInfo.userid_fk == userid).first()
+        return result.ppurl if result else None
+
+    @staticmethod
+    def get_rh_status_by_userid(db: Session, userid: int):
+        """Fetches the Rhesus factor status by user ID."""
+        result = db.query(UserPageInfo.rh).filter(UserPageInfo.userid_fk == userid).first()
+        return result.rh if result else None
 
     @staticmethod
     def update(db: Session, userid: int, user_page_info: UserPageInfoSchema):
@@ -90,3 +104,13 @@ class UserPageInfoCRUD:
     #     db.delete(db_user_info)
     #     db.commit()
     #     return db_user_info
+
+    @staticmethod
+    def set_rh_status(db: Session, userid: int, rh: bool):
+        db_user_info = db.query(UserPageInfo).filter(UserPageInfo.userid_fk == userid).first()
+        if not db_user_info:
+            return None
+        db_user_info.rh = rh
+        db.commit()
+        db.refresh(db_user_info)
+        return db_user_info
