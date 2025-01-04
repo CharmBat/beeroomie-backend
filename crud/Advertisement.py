@@ -99,11 +99,9 @@ class AdPageCRUD:
                 AdPage.address,
                 AdPage.pet,
                 AdPage.smoking,
-                UserPageInfo.full_name,
-                Photos.photourl,
+                UserPageInfo.full_name
             )
             .join(UserPageInfo, AdPage.userid_fk == UserPageInfo.userid_fk)
-            .join(Photos, AdPage.adpageid == Photos.adpageid_fk)
             .join(Neighborhood, AdPage.neighborhoodid_fk == Neighborhood.neighborhoodid)  # Neighborhood Join
             .join(District, Neighborhood.districtid_fk == District.districtid)  # District Join
         )
@@ -125,45 +123,41 @@ class AdPageCRUD:
                     query = query.filter(column == value)
 
         query = query.offset(offset).limit(limit)
-
         results = query.all()
 
-        adpage_dict = {}
+        # Fetch photos in a single query
+        adpage_ids = [result.adpageid for result in results]
+        photos = (
+            db.query(Photos.adpageid_fk, Photos.photourl)
+            .filter(Photos.adpageid_fk.in_(adpage_ids))
+            .all()
+        )
+
+        # Create a photo dictionary for efficient lookup
+        photo_dict = {}
+        for photo in photos:
+            if photo.adpageid_fk not in photo_dict:
+                photo_dict[photo.adpageid_fk] = []
+            photo_dict[photo.adpageid_fk].append(photo.photourl)
+
+        # Combine ads and their photos
+        adpage_response_schemas = []
         for result in results:
-            adpage_id = result.adpageid
-            if adpage_id not in adpage_dict:
-                adpage_dict[adpage_id] = {
-                    "adpageid": result.adpageid,
-                    "adtype": result.adtype,
-                    "pet": result.pet,
-                    "smoking": result.smoking,
-                    "address": result.address,
-                    "full_name": result.full_name,
-                    "price": result.price,
-                    "title": result.title,
-                    "photos": [],
-                }
-            if result.photourl:
-                adpage_dict[adpage_id]["photos"].append(result.photourl)
-
-        adpage_response_schemas = [
-            AdListingResponseSchema(
-                adpageid=data["adpageid"],
-                title=data["title"],
-                price=data["price"],
-                adtype=data["adtype"],
-                pet=data["pet"],
-                smoking=data["smoking"],
-                address=data["address"],
-                full_name=data["full_name"],
-                photos=data["photos"],
+            adpage_response_schemas.append(
+                AdListingResponseSchema(
+                    adpageid=result.adpageid,
+                    title=result.title,
+                    price=result.price,
+                    adtype=result.adtype,
+                    pet=result.pet,
+                    smoking=result.smoking,
+                    address=result.address,
+                    full_name=result.full_name,
+                    photos=photo_dict.get(result.adpageid, []),  # Attach photos directly
+                )
             )
-            for data in adpage_dict.values()
-        ]
-        
-        return adpage_response_schemas, len(adpage_dict)
 
-
+        return adpage_response_schemas, len(adpage_response_schemas)
 
 
     @staticmethod
