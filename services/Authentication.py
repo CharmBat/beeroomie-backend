@@ -44,7 +44,7 @@ class AuthenticationService:
             )
 
         verification_token=create_token(data={"email": email}, KEY=VERIFICATION_KEY)
-        verification_url=f"{FRONTEND_URL_PREFIX}/confirm/{verification_token}"
+        verification_url=f"{FRONTEND_URL_PREFIX}/confirm-email/{verification_token}"
         hashed_password = get_password_hash(password)
         AuthCRUD.add_user_to_db(email, hashed_password,db)
         
