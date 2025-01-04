@@ -22,6 +22,12 @@ async def delete_offer(offerid: int, db: Session =Depends(get_db), current_user 
     if isinstance(current_user, TokenData):
         if current_user.userid == OfferCRUD.get_userid_by_offer(db, offerid):
             return OfferService.delete_offer_service(offerid, db)
+        else:
+            return OfferResponse(
+                user_message="You are not authorized to delete this offer",
+                error_status=403,
+                system_message="Forbidden"
+            )
     else:
         return current_user
 
