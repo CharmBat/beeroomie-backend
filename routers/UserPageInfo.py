@@ -38,6 +38,6 @@ def delete_user_page_info(userid: int, db: Session = Depends(get_db), current_us
         if current_user.role == True or current_user.userid == userid:
             return UserPageInfoService.delete_user_service(userid=userid,db=db)
         else:
-            user_page_info_response(user_message="You are not authorized to delete this user",error_status=status.HTTP_403_FORBIDDEN,system_message="Forbidden")
+            return user_page_info_response(user_message="You are not authorized to delete this user",error_status=status.HTTP_403_FORBIDDEN,system_message="Forbidden")
     else:  
         return current_user
