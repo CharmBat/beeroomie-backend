@@ -41,9 +41,8 @@ class UserPageInfoService:
     @staticmethod
     def create_user_page_info_service(user_page_info: UserPageInfoSchema, db, user_id):
         try:
+            user_page_info.userid_fk = user_id
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
-            validated_user_info.userid_fk = user_id
-            
             created_user_info = UserPageInfoCRUD.create(db, validated_user_info)
             return user_page_info_response(
                 user_message=f"UserPageInfo created successfully for user {created_user_info.userid_fk}",
@@ -71,7 +70,8 @@ class UserPageInfoService:
                     system_message="No record found with the given ID",
                     user_info_list=None,
                 )
-              
+
+            user_page_info.userid_fk = userid
             validated_user_info = UserPageInfoSchema.model_validate(user_page_info)
             
             # Sadece eski fotoğraf varsa ve yeni fotoğraf farklıysa sil

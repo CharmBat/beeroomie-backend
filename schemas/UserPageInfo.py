@@ -14,7 +14,7 @@ class UserPageInfoBase(BaseModel):
     rh: Optional[bool]
 
 class UserPageInfoSchema(UserPageInfoBase):
-    userid_fk: int
+    userid_fk: Optional[int] = None
     departmentid_fk: Optional[int]
     
 
