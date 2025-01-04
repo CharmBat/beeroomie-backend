@@ -18,17 +18,16 @@ Beeroomie Backend aims to streamline room-sharing processes by providing APIs fo
 ## Features
 - User registration and authentication
 - Room listing management
-- Booking and reservation system
+- Favorite and offer to an advertisement
+- Comparing advertisements
 - CRUD operations for users, rooms, and bookings
 - Database integration with PostgreSQL
-- Docker support for easy deployment
 
 ## Technologies Used
 - **Python**: Programming language used to develop the backend.
 - **FastAPI**: Web framework for building APIs.
 - **SQLAlchemy**: ORM for database interactions.
 - **PostgreSQL**: Database used to store application data.
-- **Docker**: Containerization tool for easy deployment.
 - **Pydantic**: Data validation and serialization.
 - **Alembic**: Database migrations.
 
