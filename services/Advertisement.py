@@ -107,9 +107,11 @@ class AdvertisementService:
                 PhotoHandleService.photo_delete_service(photo.photourl)
             PhotosCRUD.delete_photos(db, adpage_id)
 
-            # Yeni fotoğraf URL'lerini kaydet
+            # Yeni fotoğrafları ekle (sıralı olarak)
             if adpage.photos:
-                PhotosCRUD.create_photos(db, adpage_id, adpage.photos)
+                # Her fotoğrafı tek tek ekle
+                for photo_url in adpage.photos:
+                    PhotosCRUD.create_single_photo(db, adpage_id, photo_url)
 
             return create_response_only_message(
                 user_message=f"Advertisement {adpage_id} updated successfully",
