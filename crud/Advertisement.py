@@ -232,6 +232,9 @@ class PhotosCRUD:
         db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
         db.commit()
 
+    @staticmethod
+    def get_photos_by_adpage_id(db, adpage_id):
+        return db.query(Photos).filter(Photos.adpageid_fk == adpage_id).all()
 
 
 class AdUtilitiesCRUD:
