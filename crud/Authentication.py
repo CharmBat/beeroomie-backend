@@ -51,12 +51,13 @@ class AuthCRUD:
                 db.query(Users).filter(Users.userid == userid).delete()
                 db.commit()
                 print(f"User with userid {userid} deleted successfully.")
+                return True
             else:
                 print(f"No user found with userid {userid}.")    
-
+                return False
         except Exception as e:
             print(f"Database error in delete_user: {e}")
-            return None
+            return False
 
     @staticmethod
     def update_user_password(userid: str, hashed_password: str,db:Session):

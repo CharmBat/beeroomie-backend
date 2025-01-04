@@ -147,14 +147,19 @@ class UserPageInfoService:
                 PhotoHandleService.photo_delete_service(user_info.ppurl)
 
             # Delete user
-            AuthCRUD.delete_user(userid, db)
-            
-            return user_page_info_response(
+            if AuthCRUD.delete_user(userid, db):
+                return user_page_info_response(
                 user_message="User deleted successfully.",
                 error_status=status.HTTP_201_CREATED,
                 system_message="User deleted successfully."
-            ) 
-        
+                ) 
+            else:
+                return user_page_info_response(
+                        user_message="User not found or deletion failed.",
+                        error_status=status.HTTP_404_NOT_FOUND,
+                        system_message="User not found or deletion failed."
+                    )
+                
         except Exception as e:
             print(f"Invalid userid or deletion failed: {e}")
             return user_page_info_response(
