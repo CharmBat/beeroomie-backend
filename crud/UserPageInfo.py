@@ -25,6 +25,7 @@ class UserPageInfoCRUD:
                 UserPageInfo.about,
                 UserPageInfo.contact,
                 UserPageInfo.rh,
+                UserPageInfo.departmentid_fk,
                 Department.department_name.label("department_name"),
             )
             .join(Department, UserPageInfo.departmentid_fk == Department.departmentid, isouter=True)
@@ -46,6 +47,7 @@ class UserPageInfoCRUD:
             "about": query.about,
             "contact": query.contact,
             "rh": query.rh,
+            "departmentid_fk": query.departmentid_fk,
             "department_name": query.department_name,
         }
 

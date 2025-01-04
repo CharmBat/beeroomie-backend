@@ -20,6 +20,7 @@ class UserPageInfoSchema(UserPageInfoBase):
 
 class UserPageInfoResponseSchema(UserPageInfoBase):
     userid_fk: int
+    departmentid_fk:int
     department_name: Optional[str]  # Department adı dahil edilebilir
     
     model_config = ConfigDict(from_attributes=True)
