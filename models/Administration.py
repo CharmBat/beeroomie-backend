@@ -27,10 +27,12 @@ class Reports(Base):
     reporter_user = relationship(
         "Users",
         foreign_keys=[reporter],
-        back_populates="reports_as_reporter"
+        back_populates="reports_as_reporter",
+        cascade="all, delete"
     )
     reportee_user = relationship(
         "Users",
         foreign_keys=[reportee],
-        back_populates="reports_as_reportee"
+        back_populates="reports_as_reportee",
+        cascade="all, delete"
     )
