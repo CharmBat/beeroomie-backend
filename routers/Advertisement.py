@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from schemas.Authentication import TokenData
 from services.Authentication import AuthenticationService
 from crud.Advertisement import AdPageCRUD
+from utils.Advertisement import create_response_only_message
+from fastapi import status 
 router = APIRouter(
     prefix="/advertisement",
     tags=["Advertisement"]
@@ -88,6 +90,8 @@ async def delete_adpage(adpage_id: int, db: Session = Depends(get_db), current_u
     if isinstance(current_user, TokenData):
         if current_user.role == True or current_user.userid == AdPageCRUD.get_userid_by_ad(db, adpage_id):
             return AdvertisementService.delete_adpage_service(adpage_id, db)
+        else:
+            return create_response_only_message(user_message="You are not authorized to delete this adpage",error_status=status.HTTP_403_FORBIDDEN,system_message="Forbidden")
     else:
         return current_user    
     

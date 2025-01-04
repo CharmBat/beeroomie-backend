@@ -5,6 +5,8 @@ from db.database import get_db
 from services.UserPageInfo import UserPageInfoService
 from services.Authentication import AuthenticationService
 from schemas.Authentication import TokenData
+from utils.UserPageInfo import user_page_info_response
+from fastapi import status
 router = APIRouter(
     prefix="/userpageinfo",
     tags=["UserPageInfo"]
@@ -35,5 +37,7 @@ def delete_user_page_info(userid: int, db: Session = Depends(get_db), current_us
     if isinstance(current_user, TokenData):
         if current_user.role == True or current_user.userid == userid:
             return UserPageInfoService.delete_user_service(userid=userid,db=db)
+        else:
+            user_page_info_response(user_message="You are not authorized to delete this user",error_status=status.HTTP_403_FORBIDDEN,system_message="Forbidden")
     else:  
         return current_user

@@ -180,13 +180,14 @@ class AdPageCRUD:
     
     @staticmethod
     def get_userid_by_ad(db: Session, adpage_id: int):
-        userid = (
+        result = (
             db.query(AdPage.userid_fk)
             .filter(AdPage.adpageid == adpage_id)
             .first()
         )
-        return userid
-
+        if result:
+            return result.userid_fk
+        return None
 
     @staticmethod
     def update(db: Session, adpage_id: int, adpage: AdPageSchema) -> AdPage:
