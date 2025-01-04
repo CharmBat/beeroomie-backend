@@ -232,6 +232,19 @@ class PhotosCRUD:
         db.query(Photos).filter(Photos.adpageid_fk == adpage_id).delete()
         db.commit()
 
+    @staticmethod
+    def get_photos_by_adpage_id(db, adpage_id):
+        return db.query(Photos).filter(Photos.adpageid_fk == adpage_id).all()
+
+    @staticmethod
+    def create_single_photo(db: Session, adpage_id: int, photo_url: str):
+        photo = Photos(
+            adpageid_fk=adpage_id,
+            photourl=photo_url
+        )
+        db.add(photo)
+        db.commit()
+        return photo
 
 
 class AdUtilitiesCRUD:

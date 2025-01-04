@@ -79,7 +79,7 @@ async def create_adpage(adpage: AdPageRequest, db: Session =Depends(get_db), cur
 @router.put("/{adpage_id}", response_model=AdPageResponse)
 async def update_adpage(adpage_id: int, adpage: AdPageRequest, db: Session =Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
     if isinstance(current_user, TokenData):
-       return AdvertisementService.update_adpage_service(adpage_id, adpage,db,user_id=current_user.userid) 
+       return AdvertisementService.update_adpage_service(adpage_id, adpage,db,userid=current_user.userid) 
     else:
         return current_user    
 
