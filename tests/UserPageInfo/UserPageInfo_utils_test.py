@@ -7,6 +7,7 @@ class TestUserPageInfoUtils:
     def test_user_page_info_response_with_data(self):
         test_info = UserPageInfoResponseSchema(
             userid_fk=1,
+            departmentid_fk=1,
             full_name="Test Kullanıcı",
             department_name="Test Bölüm",
             date_of_birth=date(1990, 1, 1),
