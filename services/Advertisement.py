@@ -68,9 +68,17 @@ class AdvertisementService:
             db_adpage = AdPageCRUD.get_by_id(db, adpage_id)
             if not db_adpage:
                 return create_response_only_message(
-                    user_message="Advertisement not found",
+                    user_message="İlan bulunamadı",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="No record found with the given ID",
+                )
+
+            # İlanın sahibi olan kullanıcıyı kontrol et
+            if db_adpage.userid_fk != userid:
+                return create_response_only_message(
+                    user_message="Bu ilanı güncelleme yetkiniz yok",
+                    error_status=status.HTTP_403_FORBIDDEN,
+                    system_message="User is not the owner of the advertisement",
                 )
 
             # Aynı başlıkta başka bir ilan var mı kontrol et
