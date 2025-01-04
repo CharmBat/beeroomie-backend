@@ -108,7 +108,7 @@ class AuthenticationService:
             return create_response(
                 user_message="Login failed. Please check your credentials. Be sure your account is verified!!!",
                 error_status=status.HTTP_401_UNAUTHORIZED,
-                system_message="Incorrect email or password"
+                system_message="Hatalı email veya şifre."
             )
     
         

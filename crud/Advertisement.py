@@ -28,6 +28,7 @@ class AdPageCRUD:
                 AdPage.gender_choices,
                 AdPage.ad_date,
                 AdPage.userid_fk,
+                Neighborhood.districtid_fk,
                 Neighborhood.neighborhood_name.label("neighborhood"),
                 District.district_name.label("district"),
                 NumberOfRoom.n_room.label("n_room"),
@@ -83,6 +84,7 @@ class AdPageCRUD:
             "photos": photo_list,
             "utilities": utility_list,
             "userid_fk": query.userid_fk,
+            "districtid_fk": query.districtid_fk
         }
 
         return AdPageResponseSchema(**ad_data)
