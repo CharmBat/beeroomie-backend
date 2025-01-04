@@ -29,7 +29,7 @@ class AuthenticationService:
     def register_user_service(email: str, password: str,db):
         if AuthCRUD.get_user(email,db):
             return create_response(
-                user_message="This email is already registered to the system.",
+                user_message="Bu email sisteme zaten kayıtlı.",
                 error_status=status.HTTP_409_CONFLICT,
                 system_message="Already registered email"
             )

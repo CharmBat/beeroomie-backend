@@ -160,6 +160,8 @@ class ReportCRUD:
                 Reports.reportid,
                 reporter_info.full_name.label("reporter_name"),
                 reportee_info.full_name.label("reportee_name"),
+                Reports.reporter,
+                Reports.reportee,
                 Reports.description,
                 Reports.report_date
             )
@@ -168,16 +170,19 @@ class ReportCRUD:
         )
         results = query.all()
 
-        return [
-            {
-                "report_id": result.reportid,
-                "report_date": result.report_date,
-                "reporter": result.reporter_name,
-                "reportee": result.reportee_name,
-                "description": result.description,
-            }
+        response_data = [
+            ReportResponseSchema(
+            report_id=result.reportid,
+            reporter=result.reporter_name,
+            reportee=result.reportee_name,
+            reporter_id=result.reporter,
+            reportee_id=result.reportee,
+            description=result.description,
+            report_date=result.report_date
+            )
             for result in results
         ]
+        return response_data
     
 
     

@@ -42,6 +42,8 @@ class ReportResponseSchema2(BaseModel):
 
 class ReportResponseSchema(BaseModel):
     report_id: int
+    reporter_id: int
+    reportee_id: int
     reporter: str
     reportee: str
     description: str
