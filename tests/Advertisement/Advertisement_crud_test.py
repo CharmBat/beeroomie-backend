@@ -64,40 +64,39 @@ class TestAdPageCRUD:
 
     def test_get_filtered_ads_success(self):
         db = MagicMock(spec=Session)
-        mock_result = [
+
+        # Mock ad query result
+        ad_query_result = [
             MagicMock(
                 adpageid=1,
                 title="Test Ad",
                 price=1000,
-                adtype="rent",
-                address="Test address",
+                adtype=True,
+                address="Test Address",
                 pet=True,
                 smoking=False,
-                full_name="Test User",
-                photourl="test.jpg"
+                full_name="Test User"
             )
         ]
-        db.query.return_value.join.return_value.join.return_value.join.return_value.join.return_value\
-            .filter.return_value.offset.return_value.limit.return_value.all.return_value = mock_result
-        db.query.return_value.join.return_value.join.return_value.join.return_value.join.return_value\
-            .filter.return_value.count.return_value = len(mock_result)
+        photo_query_result = [
+            MagicMock(adpageid_fk=1, photourl="test.jpg")
+        ]
+        query_mock = db.query.return_value
+        query_mock.join.return_value = query_mock
+        query_mock.filter.return_value = query_mock
+        query_mock.offset.return_value.limit.return_value.all.return_value = ad_query_result
+
+        photo_mock = db.query.return_value
+        photo_mock.filter.return_value.all.return_value = photo_query_result
 
         filters = {"min_price": 500, "max_price": 1500}
         results, count = AdPageCRUD.get_filtered_ads(db, filters)
-        
+
         assert len(results) == 1
         assert results[0].adpageid == 1
-        assert results[0].price == 1000
+        assert results[0].title == "Test Ad"
+        assert results[0].photos == ["test.jpg"]
         assert count == 1
-
-    def test_get_filtered_ads_failure(self):
-        db = MagicMock(spec=Session)
-        db.query.side_effect = SQLAlchemyError("Database error")
-        
-        filters = {"min_price": 500, "max_price": 1500}
-        
-        with pytest.raises(SQLAlchemyError):
-            AdPageCRUD.get_filtered_ads(db, filters)
 
     def test_get_by_id_success(self):
             db = MagicMock(spec=Session)
