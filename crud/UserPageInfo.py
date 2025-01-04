@@ -74,6 +74,12 @@ class UserPageInfoCRUD:
         return result.ppurl if result else None
 
     @staticmethod
+    def get_rh_status_by_userid(db: Session, userid: int):
+        """Fetches the Rhesus factor status by user ID."""
+        result = db.query(UserPageInfo.rh).filter(UserPageInfo.userid_fk == userid).first()
+        return result.rh if result else None
+
+    @staticmethod
     def update(db: Session, userid: int, user_page_info: UserPageInfoSchema):
         """Updates a UserPageInfo record by user ID."""
         db_user_info = db.query(UserPageInfo).filter(UserPageInfo.userid_fk == userid).first()

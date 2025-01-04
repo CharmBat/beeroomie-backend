@@ -6,13 +6,12 @@ class Offer(BaseModel):
     send_message: str
     offerer_name: str
     contact_info: str
+    other_user_id: int
+    ppurl: str
+    
+    
 class OfferResponse(BaseModel):
     user_message: str
     error_status: int
     system_message: str
-
-class OfferResponseListing(BaseModel):
-    user_message: str
-    error_status: int
-    system_message: str
-    offers: List[Offer]
+    offers: Optional[List[Offer]] = None

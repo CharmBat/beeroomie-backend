@@ -1,8 +1,11 @@
-from schemas.OfferManagement import OfferResponse, OfferResponseListing
+from schemas.OfferManagement import OfferResponse
 from crud.OfferManagement import OfferCRUD
 from fastapi import APIRouter, Depends, HTTPException
 from services.Authentication import AuthenticationService
 from crud.Advertisement import AdPageCRUD
+from crud.UserPageInfo import UserPageInfoCRUD
+from fastapi import status
+
 
 class OfferService:
     @staticmethod
@@ -59,11 +62,20 @@ class OfferService:
             )
         
     @staticmethod
-    def get_offers_service(token: str, db, user_id):
+    def get_offers_service(db, user_id):
         try:
-            offereeid = user_id
-            offers = OfferCRUD.get_all(db, offereeid)
-            return OfferResponseListing(
+            rh=UserPageInfoCRUD.get_rh_status_by_userid(db, user_id)
+            offers=[]
+            if rh:#housie
+            #ofreeid=userid olması lazım
+                offereeid = user_id
+                offers = OfferCRUD.get_all(db, offereeid_fk=offereeid)
+            else:#roomie    
+            #offererid=userid olması lazım
+                offererid = user_id
+                offers = OfferCRUD.get_all(db,offererid_fk=offererid)
+            
+            return OfferResponse(
                 user_message="Successfully fetched Offers",
                 error_status=0,
                 system_message="OK",
