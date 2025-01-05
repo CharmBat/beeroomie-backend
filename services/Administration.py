@@ -119,7 +119,7 @@ class AdministrationService:
             user = db.query(Users).filter(Users.userid == user_id).first()
             if not user:
                 return create_response_reports(
-                    user_message="User not found",
+                    user_message="Kullanıcı bulunamadı",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="User does not exist",
                     report_list=None

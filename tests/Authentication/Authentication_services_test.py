@@ -157,7 +157,7 @@ class TestAuthenticationServices:
         
         assert response.status_code == 200
         assert response.json()["error_status"] == 404
-        assert "User not found" in response.json()["user_message"]
+        assert "Kullanıcı bulunamadı" in response.json()["user_message"]
 
     @patch('services.Authentication.AuthCRUD.update_user_password')
     def test_change_password(self, mock_update):
