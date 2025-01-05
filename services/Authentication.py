@@ -147,7 +147,7 @@ class AuthenticationService:
     def forgot_password_service(email: str,db):
         if not AuthCRUD.get_user(email,db):
             return create_response(
-                user_message="User not found.",
+                user_message="Kullanıcı bulunamadı",
                 error_status=status.HTTP_404_NOT_FOUND,
                 system_message="User not found."
             )
@@ -205,7 +205,7 @@ class AuthenticationService:
             except Exception as e:
                 print(f"Error retrieving userid from email: {e}")
                 return create_response(
-                    user_message="User not found.",
+                    user_message="Kullanıcı bulunamadı",
                     error_status=status.HTTP_400_BAD_REQUEST,
                     system_message="Unable to retrieve userid from email."
                 )

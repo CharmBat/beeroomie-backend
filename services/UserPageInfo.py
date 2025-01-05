@@ -125,7 +125,7 @@ class UserPageInfoService:
             user_info = UserPageInfoCRUD.get_by_userid(db, userid)
             if not user_info:
                 return user_page_info_response(
-                    user_message="User not found.",
+                    user_message="Kullanıcı bulunamadı",
                     error_status=status.HTTP_404_NOT_FOUND,
                     system_message="User not found."
                 )
