@@ -38,7 +38,7 @@ class AuthenticationService:
         if blacklisted:
             print(f"Attempt to register with a blacklisted email: {email}")
             return create_response(
-                user_message= "Your email is blacklisted. Registration is not allowed.",
+                user_message= "Email adresi engellenmiş, kayıt olunamaz.",
                 error_status= 403,
                 system_message= "Email is blacklisted"
             )
