@@ -8,19 +8,13 @@ from models.User import UserPageInfo
 
 class BlacklistCRUD:
     @staticmethod
-    def get_blacklist_by_user(db: Session, e_mail: str) -> BlacklistResponse:
+    def get_blacklist(db: Session) -> BlacklistResponse:
         blacklist_entries = (
             db.query(Blacklist)
-            .filter(Blacklist.e_mail == e_mail)
             .all()
         )
         if not blacklist_entries:
-            return BlacklistResponse(
-                blacklist_list=[],
-                user_message="No blacklist entry found for the given email",
-                error_status=1,  
-                system_message="No matching records found"
-            )
+            return 
         response_data = [
             BlacklistBase(
                 e_mail=entry.e_mail,
@@ -29,13 +23,7 @@ class BlacklistCRUD:
             )
             for entry in blacklist_entries
         ]
-        return BlacklistResponse(
-            blacklist_list=response_data,
-            user_message="Blacklist data retrieved successfully",
-            error_status=0,
-            system_message="Operation completed"
-        )
-
+        return response_data
     @staticmethod
     def create_blacklist(db: Session, blacklist_data: BlacklistBase) -> BlacklistResponse:
         blacklist_entry = Blacklist(**blacklist_data.dict())
