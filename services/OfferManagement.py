@@ -22,7 +22,10 @@ class OfferService:
                     system_message="AdPage not found"
                 )
 
-            offeree_id = offeree_row[0]
+            if isinstance(offeree_row, list):
+                offeree_id = offeree_row[0]
+            else:
+                offeree_id = offeree_row
             new_offer = OfferCRUD.create(
                 db = db,
                 offererid_fk=offererid_fk,
