@@ -18,8 +18,8 @@ class Reports(Base):
     __tablename__ = "reports"
 
     reportid = Column(Integer, primary_key=True, autoincrement=True)
-    reporter = Column(Integer, ForeignKey('users.userid', ondelete="CASCADE"), nullable=False)
-    reportee = Column(Integer, ForeignKey('users.userid', ondelete="CASCADE"), nullable=False)
+    reporter = Column(Integer, ForeignKey('users.userid'), nullable=False)
+    reportee = Column(Integer, ForeignKey('users.userid'), nullable=False)
     description = Column(String(140), nullable=False)
     report_date = Column(Date, nullable=False)
 
@@ -27,12 +27,10 @@ class Reports(Base):
     reporter_user = relationship(
         "Users",
         foreign_keys=[reporter],
-        back_populates="reports_as_reporter",
-        cascade="all, delete"
+        back_populates="reports_as_reporter"
     )
     reportee_user = relationship(
         "Users",
         foreign_keys=[reportee],
-        back_populates="reports_as_reportee",
-        cascade="all, delete"
+        back_populates="reports_as_reportee"
     )
