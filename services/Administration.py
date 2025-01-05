@@ -1,6 +1,6 @@
 from fastapi import status
 from sqlalchemy.orm import Session
-from utils.Administration import create_response_reports
+from utils.Administration import create_response_reports, create_response_blacklist
 from crud.Administration import ReportCRUD
 from crud.Administration import BlacklistCRUD
 from crud.Authentication import AuthCRUD
@@ -148,9 +148,26 @@ class AdministrationService:
                 system_message=str(e),
                 report_list=None
             )
+        
+    @staticmethod
+    def get_blacklist(db: Session):
+
+        try:
+            blacklist = BlacklistCRUD.get_blacklist(db)
+            return create_response_blacklist(
+                user_message="Successfully fetched blacklist",
+                error_status=status.HTTP_200_OK,
+                system_message="OK",
+                blacklist_list=blacklist
+            )
+        except Exception as e:
+            return create_response_blacklist(
+                user_message="Failed to fetch blacklist",
+                error_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                system_message=str(e),
+                blacklist_list=None
+            )
 
 
-
-    
 
 

@@ -16,25 +16,22 @@ class TestBlacklistCRUD:
         mock_entry.ban_date = date.today()
         mock_entry.ban_reason = "Spam"
 
-        db.query().filter().all.return_value = [mock_entry]  
+        db.query().all.return_value = [mock_entry]  
 
-        response = BlacklistCRUD.get_blacklist_by_user(db, "test@example.com")
+        response = BlacklistCRUD.get_blacklist(db)
 
-        assert response.user_message == "Blacklist data retrieved successfully"
-        assert response.error_status == 0
-        assert len(response.blacklist_list) == 1
-        assert response.blacklist_list[0].e_mail == "test@example.com"
+        assert len(response) == 1
+        assert response[0].e_mail == "test@example.com"
+        assert response[0].ban_date == mock_entry.ban_date
+        assert response[0].ban_reason == "Spam"
 
     def test_get_blacklist_by_user_failure(self):
         db = MagicMock(spec=Session)
-        db.query().filter().all.return_value = [] 
+        db.query().all.return_value = []
 
-        response = BlacklistCRUD.get_blacklist_by_user(db, "nonexistent@example.com")
+        response = BlacklistCRUD.get_blacklist(db)
 
-        assert response.user_message == "No blacklist entry found for the given email"
-        assert response.error_status == 1
-        assert response.system_message == "No matching records found"
-        assert len(response.blacklist_list) == 0
+        assert response == None
 
     def test_create_blacklist(self):
         db = MagicMock(spec=Session)

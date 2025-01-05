@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from schemas.Administration import ReportRequest, ReportResponse
+from schemas.Administration import ReportRequest, ReportResponse, BlacklistResponse
 from services.Administration import AdministrationService
 from services.Authentication import AuthenticationService
 from schemas.Authentication import TokenData
+from utils.Administration import create_response_blacklist
+from fastapi import status
 
 router = APIRouter(prefix="/administration", tags=["Administration"])
 
@@ -37,5 +39,15 @@ def get_reports(db: Session =Depends(get_db), current_user = Depends(Authenticat
 def ban_user(user_id: int, ban_reason: str, db: Session = Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
     if isinstance(current_user, TokenData):
         return AdministrationService.ban_user_service(role=current_user.role, user_id=user_id, ban_reason=ban_reason, db=db)
+    else:
+        return current_user
+    
+@router.get("/blacklist", response_model=BlacklistResponse)
+def get_blacklist(db: Session =Depends(get_db), current_user = Depends(AuthenticationService.get_current_user)):
+    if isinstance(current_user, TokenData):
+        if current_user.role:
+            return AdministrationService.get_blacklist(db)
+        else:
+            return create_response_blacklist(user_message="You do not have permission to access this resource", error_status=status.HTTP_401_UNAUTHORIZED,system_message="Unauthorized access")
     else:
         return current_user
