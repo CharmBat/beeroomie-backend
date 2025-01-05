@@ -52,6 +52,7 @@ class AdPageResponseSchema(AdPageBase):
     photos: list[str]
     utilities:List[str]
     districtid_fk: int
+    ppurl: str
 
     model_config = ConfigDict(from_attributes=True)
 

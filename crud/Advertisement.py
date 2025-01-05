@@ -33,6 +33,7 @@ class AdPageCRUD:
                 District.district_name.label("district"),
                 NumberOfRoom.n_room.label("n_room"),
                 UserPageInfo.full_name.label("user_full_name"),
+                UserPageInfo.ppurl
             )
             .join(UserPageInfo, AdPage.userid_fk == UserPageInfo.userid_fk)
             .join(Neighborhood, AdPage.neighborhoodid_fk == Neighborhood.neighborhoodid)
@@ -84,7 +85,8 @@ class AdPageCRUD:
             "photos": photo_list,
             "utilities": utility_list,
             "userid_fk": query.userid_fk,
-            "districtid_fk": query.districtid_fk
+            "districtid_fk": query.districtid_fk,
+            "ppurl": query.ppurl
         }
 
         return AdPageResponseSchema(**ad_data)
