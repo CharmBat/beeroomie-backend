@@ -94,15 +94,15 @@ class TestAuthenticationServices:
     @patch('services.Authentication.AuthCRUD.get_user')
     def test_register_existing_user(self, mock_get_user):
         mock_get_user.return_value = MagicMock()
-        
+    
         response = client.post(
             "/auth/register",
             json={"email": "existing@itu.edu.tr", "password": "password"}
         )
-        
+    
         assert response.status_code == 200
         assert response.json()["error_status"] == 409
-        assert "already registered" in response.json()["user_message"]
+        assert "Bu email sisteme zaten kayıtlı." in response.json()["user_message"]
 
 
     @patch('services.Authentication.AuthCRUD.confirm_user')

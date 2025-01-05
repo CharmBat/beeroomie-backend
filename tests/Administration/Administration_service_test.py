@@ -84,27 +84,33 @@ class TestAdministrationServices:
             assert response.user_message == "You are not authorized to delete this report"
             assert response.error_status == status.HTTP_403_FORBIDDEN
 
+    
     @patch('crud.Administration.ReportCRUD.get_all')
     def test_get_all_reports_admin(self, mock_get_all):
-        mock_user_role = True 
+        mock_user_role = True
 
         mock_reports = [
             ReportResponseSchema(
                 report_id=1,
-                reporter="reporter1",
-                reportee="reportee1",
-                description="string",
+                reporter_id=101,
+                reportee_id=102,
+                reporter="John Doe",
+                reportee="Jane Doe",
+                description="Test description",
                 report_date="2024-12-27"
             )
         ]
 
         mock_get_all.return_value = mock_reports
-        response = AdministrationService.get_all_reports(MagicMock(), mock_user_role)
+
+        mock_db = MagicMock()
+
+        response = AdministrationService.get_all_reports(mock_db, mock_user_role)
+
         assert response.user_message == "Successfully fetched Reports"
         assert response.error_status == 0
         assert response.system_message == "OK"
         assert response.report_list == mock_reports
-
 
     def test_get_all_reports_non_admin(mock_db):
         mock_user_role = False

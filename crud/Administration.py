@@ -82,44 +82,44 @@ class BlacklistCRUD:
 
 
 class ReportCRUD:
-    @staticmethod
-    def get_reports_by_user(db: Session, current_user_id: int) -> ReportResponse:
+    # @staticmethod
+    # def get_reports_by_user(db: Session, current_user_id: int) -> ReportResponse:
 
-        reporter_info = aliased(UserPageInfo)
-        reportee_info = aliased(UserPageInfo)
+    #     reporter_info = aliased(UserPageInfo)
+    #     reportee_info = aliased(UserPageInfo)
     
-        report_entries = (
-            db.query(
-                Reports.reportid.label("report_id"),
-                reporter_info.full_name.label("reporter_name"),
-                reportee_info.full_name.label("reportee_name"),
-                Reports.description,
-                Reports.report_date
-            )
-            .filter(
-                (Reports.reporter == current_user_id) |
-                (Reports.reportee == current_user_id)
-            )
-            .all()
-        )
+    #     report_entries = (
+    #         db.query(
+    #             Reports.reportid.label("report_id"),
+    #             reporter_info.full_name.label("reporter_name"),
+    #             reportee_info.full_name.label("reportee_name"),
+    #             Reports.description,
+    #             Reports.report_date
+    #         )
+    #         .filter(
+    #             (Reports.reporter == current_user_id) |
+    #             (Reports.reportee == current_user_id)
+    #         )
+    #         .all()
+    #     )
 
-        response_data = [
-            ReportResponseSchema(
-                report_id=entry.report_id,
-                reporter=entry.reporter,
-                reportee=entry.reportee,
-                description=entry.description,
-                report_date=entry.report_date
-            )
-            for entry in report_entries
-        ]
+    #     response_data = [
+    #         ReportResponseSchema(
+    #             report_id=entry.report_id,
+    #             reporter=entry.reporter,
+    #             reportee=entry.reportee,
+    #             description=entry.description,
+    #             report_date=entry.report_date
+    #         )
+    #         for entry in report_entries
+    #     ]
 
-        return ReportResponse(
-            report_list=response_data,
-            user_message="Reports retrieved successfully",
-            error_status=0,
-            system_message="Operation completed"
-        )
+    #     return ReportResponse(
+    #         report_list=response_data,
+    #         user_message="Reports retrieved successfully",
+    #         error_status=0,
+    #         system_message="Operation completed"
+    #     )
 
     @staticmethod
     def create_report(db: Session, report_data: ReportRequest, current_user_id: int) -> ReportResponseSchema2:

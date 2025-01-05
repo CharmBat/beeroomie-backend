@@ -2,7 +2,7 @@
 from unittest.mock import MagicMock, patch
 from sqlalchemy.orm import Session
 from crud.Administration import BlacklistCRUD, ReportCRUD, BlacklistBase
-from schemas.Administration import ReportRequest
+from schemas.Administration import ReportRequest, ReportResponseSchema
 from datetime import date
 from models.Administration import Reports
 
@@ -88,39 +88,6 @@ class TestBlacklistCRUD:
 
 class TestReportCRUD:
 
-    def test_get_reports_by_user(self):
-        db = MagicMock(spec=Session)
-
-        mock_report = MagicMock()
-        mock_report.reportid = 1
-        mock_report.reporter = "John Doe"
-        mock_report.reportee = "Alice Mavis"
-        mock_report.description = "Inappropriate behavior"
-        mock_report.report_date = date.today()
-
-        db.query().filter().all.return_value = [mock_report]  
-
-        response = ReportCRUD.get_reports_by_user(db, 1)
-
-        assert response.user_message == "Reports retrieved successfully"
-        assert response.error_status == 0
-        assert len(response.report_list) == 1
-        assert response.report_list[0].report_id == 1
-        assert response.report_list[0].reporter == "John Doe"
-
-    def test_get_reports_by_user_no_reports(self):
-        db = MagicMock(spec=Session)
-
-        db.query().filter().all.return_value = []  
-
-        response = ReportCRUD.get_reports_by_user(db, 99)
-
-        assert response.user_message == "Reports retrieved successfully"
-        assert response.error_status == 0
-        assert response.system_message == "Operation completed"
-        assert len(response.report_list) == 0
-
-
 
     def test_create_report(self):
         db = MagicMock(spec=Session)
@@ -180,20 +147,37 @@ class TestReportCRUD:
 
 
     def test_get_all_reports(self):
+    # Mock the DB session
         db = MagicMock(spec=Session)
-
-        mock_report = MagicMock()
-        mock_report.reportid = 1
-        mock_report.report_date = date.today()
-        mock_report.reporter_name = "John Doe"
-        mock_report.reportee_name = "Jane Doe"
-        mock_report.description = "Spam activity"
-        db.query().join().join().all.return_value = [mock_report] 
-        response = ReportCRUD.get_all(db)
-
-        assert len(response) == 1
-        assert response[0]["report_id"] == 1
-        assert response[0]["reporter"] == "John Doe"
+    
+        # Create mock results to match the query output
+        mock_result = MagicMock()
+        mock_result.reportid = 1
+        mock_result.reporter_name = "John Doe"
+        mock_result.reportee_name = "Jane Doe"
+        mock_result.reporter = 101
+        mock_result.reportee = 102
+        mock_result.description = "Inappropriate behavior"
+        mock_result.report_date = date(2024, 12, 27)
+    
+        # Mock the DB query result
+        db.query.return_value.join.return_value.join.return_value.all.return_value = [mock_result]
+    
+        # Call the function
+        response_data = ReportCRUD.get_all(db)
+    
+        # Assertions
+        assert len(response_data) == 1
+        report = response_data[0]
+    
+        assert report.report_id == 1
+        assert report.reporter == "John Doe"
+        assert report.reportee == "Jane Doe"
+        assert report.reporter_id == 101
+        assert report.reportee_id == 102
+        assert report.description == "Inappropriate behavior"
+        assert report.report_date == date(2024, 12, 27)
+    
 
     def test_get_all_reports_no_reports(self):
         db = MagicMock(spec=Session)

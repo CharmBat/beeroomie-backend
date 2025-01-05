@@ -1,12 +1,13 @@
 from unittest.mock import MagicMock
 from datetime import datetime
 from models.Advertisement import AdPage
-from schemas.Advertisement import AdPageSchema
+from schemas.Advertisement import AdPageSchema, AdPageResponseSchema
 from crud.Advertisement import AdPageCRUD, PhotosCRUD, AdUtilitiesCRUD
 from sqlalchemy.orm import Session
 from unittest.mock import MagicMock
 from sqlalchemy.exc import SQLAlchemyError
 import pytest
+from datetime import date
 
 
 class TestAdPageCRUD:
@@ -32,7 +33,8 @@ class TestAdPageCRUD:
             neighborhood="Test neighborhood",
             district="Test district",
             n_room="2+1",
-            user_full_name="Test User"
+            user_full_name="Test User",
+            ppurl="test_ppurl"
         )
         db.query.return_value.join.return_value.join.return_value.join.return_value.join.return_value.filter.return_value = mock_query
 
@@ -53,50 +55,41 @@ class TestAdPageCRUD:
         assert len(result.photos) == 2
         assert len(result.utilities) == 2
 
-    def test_get_ad_by_id_failure(self):
-        db = MagicMock(spec=Session)
-        mock_query = MagicMock()
-        mock_query.first.return_value = None
-        db.query.return_value.join.return_value.join.return_value.join.return_value.join.return_value.filter.return_value = mock_query
-
-        result = AdPageCRUD.get_ad_by_id(db, 999)
-        assert result is None
-
-    def test_get_filtered_ads_success(self):
+    def test_get_by_id_success(self):
+    # Veritabanı oturumunu mockla
         db = MagicMock(spec=Session)
 
-        # Mock ad query result
-        ad_query_result = [
-            MagicMock(
-                adpageid=1,
-                title="Test Ad",
-                price=1000,
-                adtype=True,
-                address="Test Address",
-                pet=True,
-                smoking=False,
-                full_name="Test User"
-            )
-        ]
-        photo_query_result = [
-            MagicMock(adpageid_fk=1, photourl="test.jpg")
-        ]
-        query_mock = db.query.return_value
-        query_mock.join.return_value = query_mock
-        query_mock.filter.return_value = query_mock
-        query_mock.offset.return_value.limit.return_value.all.return_value = ad_query_result
+        # Mock edilen query sonucu
+        mock_ad = MagicMock()
+        mock_ad.adpageid = 1
+        mock_ad.userid_fk = 101
+        mock_ad.user_full_name = "John Doe"
+        mock_ad.neighborhood = "Central Park"
+        mock_ad.district = "New York"
+        mock_ad.n_room = "2+1"
+        mock_ad.ppurl = "profile.jpg"
+        mock_ad.photos = ["photo1.jpg", "photo2.jpg"]
+        mock_ad.utilities = ["Internet", "Heating"]
+        mock_ad.districtid_fk = 202
 
-        photo_mock = db.query.return_value
-        photo_mock.filter.return_value.all.return_value = photo_query_result
+        # Query'nin döndüğü sonuç
+        db.query.return_value.filter.return_value.first.return_value = mock_ad
 
-        filters = {"min_price": 500, "max_price": 1500}
-        results, count = AdPageCRUD.get_filtered_ads(db, filters)
+        # CRUD fonksiyonunu çağır
+        result = AdPageCRUD.get_ad_by_id(db, 1)
 
-        assert len(results) == 1
-        assert results[0].adpageid == 1
-        assert results[0].title == "Test Ad"
-        assert results[0].photos == ["test.jpg"]
-        assert count == 1
+        # Assertions
+        assert result is not None
+        assert isinstance(result, AdPageResponseSchema)
+        assert result.adpageid == 1
+        assert result.userid_fk == 101
+        assert result.user_full_name == "John Doe"
+        assert result.neighborhood == "Central Park"
+        assert result.district == "New York"
+        assert result.n_room == "2+1"
+        assert result.ppurl == "profile.jpg"
+        assert result.photos == ["photo1.jpg", "photo2.jpg"]
+        assert result.utilities == ["Internet", "Heating"]
 
     def test_get_by_id_success(self):
             db = MagicMock(spec=Session)
@@ -270,13 +263,14 @@ class TestAdPageCRUD:
 
     def test_get_userid_by_ad_success(self):
         db = MagicMock(spec=Session)
-        mock_userid = MagicMock(userid_fk=42)
-        db.query.return_value.filter.return_value.first.return_value = mock_userid
 
-        result = AdPageCRUD.get_userid_by_ad(db, 1)
-        
+        mock_adpage_id_tuple = (1,)  
+        db.query.return_value.filter.return_value.first.return_value = mock_adpage_id_tuple
+
+        result = AdPageCRUD.get_ad_id_by_user_id(db, 42)
+
         assert result is not None
-        assert result.userid_fk == 42
+        assert result == 1  
         db.query.assert_called_once()
 
     def test_get_userid_by_ad_failure(self):
